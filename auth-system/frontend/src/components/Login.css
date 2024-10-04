@@ -1,0 +1,79 @@
+/* Container Styling with Fade-in Animation */
+.login-container {
+    text-align: center;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f0fff0; /* Light green background */
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 128, 0, 0.2);
+    max-width: 400px;
+    margin: auto;
+    animation: fadeIn 1s ease-in; /* Fade-in animation */
+  }
+  
+  /* Title Styling */
+  .login-title {
+    color: #006400; /* Darker green for the title */
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  /* Form Container Styling */
+  .login-form-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Input Field Styling with Focus Animation */
+  .login-input {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #90ee90; /* Light green border */
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transitions */
+  }
+  
+  .login-input:focus {
+    border-color: #32cd32; /* Brighter green on focus */
+    box-shadow: 0 0 5px rgba(50, 205, 50, 0.5); /* Glow effect on focus */
+  }
+  
+  /* Login Button Styling with Hover Animation */
+  .login-button {
+    padding: 10px 20px;
+    margin-top: 15px;
+    background-color: #32cd32; /* Green button color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out; /* Smooth transitions */
+  }
+  
+  .login-button:hover {
+    background-color: #2e8b57; /* Darker shade on hover */
+    transform: scale(1.05); /* Slight zoom on hover */
+  }
+  
+  /* Message Styling */
+  .login-message {
+    color: #006400; /* Darker green for the message text */
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  /* Fade-in Animation */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
