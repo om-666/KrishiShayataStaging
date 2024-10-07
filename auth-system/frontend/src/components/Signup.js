@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import { Parallax } from 'react-parallax';
 import './Signup.css';
-
-// Sample image URL; replace this with your own image
-const backgroundImageUrl = '';
+import backgroundImageUrl from '../Images/farmer.webp'; // Correct import for image
 
 function Signup() {
   const [fullName, setFullName] = useState('');
@@ -42,7 +40,7 @@ function Signup() {
 
   return (
     <Parallax
-      bgImage={backgroundImageUrl}
+      bgImage={backgroundImageUrl} // Use the imported image
       strength={300}
       bgImageStyle={{ height: '100%', objectFit: 'cover' }}
     >
