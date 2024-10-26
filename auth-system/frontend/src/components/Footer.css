@@ -1,0 +1,79 @@
+/* General Footer Container */
+.footer {
+    margin-top: 16px;
+    background-color: #1c1c1c;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    width: 100%;
+    padding: 16px 24px;
+    margin: 0 auto;
+  }
+  
+  /* Flexbox layout for the footer */
+  .footer-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  /* Branding and Logo */
+  .footer-brand {
+    margin-bottom: 16px;
+  }
+  
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  
+  .footer-title {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: 16px;
+  }
+  
+  /* Footer Links Section */
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .footer-heading {
+    margin-bottom: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    margin-top: 16px;
+  }
+  
+  .footer-list {
+    list-style: none;
+    padding: 0;
+    color: #bbb;
+  }
+  
+  .footer-list a {
+    text-decoration: none;
+    color: #bbb;
+    font-weight: 500;
+  }
+  
+  .footer-list a:hover {
+    color: #fff;
+  }
+  
+  /* Footer Bottom Text */
+  .footer-bottom {
+    text-align: center;
+    color: #fff;
+    margin: 16px 0;
+  }
+  

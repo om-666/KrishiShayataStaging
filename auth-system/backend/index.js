@@ -13,13 +13,13 @@ mongoose.connect('mongodb://localhost:27017/auth-db', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log('MongoDB Connected'))
-.catch(err => console.error('MongoDB Connection Error:', err));
+  .catch(err => console.error('MongoDB Connection Error:', err));
 
 // User Schema
 const userSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   phone: { type: String, required: true },
-  aadhar: { type: String, required: true },
+  aadhar: { type: String, required: true, unique: true }, // Aadhar should be unique
   address: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }
@@ -28,14 +28,15 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // Routes
+
 // Signup Route
 app.post('/signup', async (req, res) => {
   const { fullName, phone, aadhar, address, email, password } = req.body;
 
   try {
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'User already exists!' });
+    const existingUser = await User.findOne({ $or: [{ email }, { aadhar }] });
+    if (existingUser) return res.status(400).json({ message: 'User already exists with this email or Aadhar!' });
 
     // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,11 +47,11 @@ app.post('/signup', async (req, res) => {
 
     res.status(200).json({ message: 'Signup successful!' });
   } catch (err) {
-    res.status(500).json({ message: 'Error signing up user', error: err });
+    res.status(500).json({ message: 'Error signing up user', error: err.message });
   }
 });
 
-// Login Route (remains unchanged)
+// Login Route
 app.post('/login', async (req, res) => {
   const { aadhar, password } = req.body; // Get Aadhar and password from the request body
 
@@ -65,7 +66,23 @@ app.post('/login', async (req, res) => {
 
     res.status(200).json({ message: 'Login successful!' });
   } catch (err) {
-    res.status(500).json({ message: 'Error logging in user', error: err });
+    res.status(500).json({ message: 'Error logging in user', error: err.message });
+  }
+});
+
+// Route to Get User Data based on Aadhar (Protected Route)
+app.get('/user/:aadhar', async (req, res) => {
+  const { aadhar } = req.params;
+
+  try {
+    // Fetch user details by Aadhar (excluding password)
+    const user = await User.findOne({ aadhar }, '-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found!' });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching user details', error: err.message });
   }
 });
 

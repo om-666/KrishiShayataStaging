@@ -1,0 +1,235 @@
+/* General Container */
+.container {
+    padding: 0px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Translate Button */
+  .translate-button {
+     
+    position: sticky;
+    top: 0; /* Change top position to 0 */
+    background-color: #25312d;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-left: 105%;
+  }
+  
+  .translate-button:hover {
+    background-color: #3a4b45;
+    transform: scale(1.05);
+  }
+  
+  /* Main Content */
+  .content {
+    margin-top: 0; /* Set margin-top to 0 for zero gap */
+  }
+  
+  /* Section Layout */
+  .section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 100px;
+    justify-content: space-between;
+    margin-bottom: 60px;
+    opacity: 0;
+    animation: fadeInUp 1s ease forwards;
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Text Section */
+  .text-section {
+    flex: 1;
+  }
+  
+  /* Image Section */
+  .image-section {
+    flex: 1;
+    max-width: 70%;
+
+  }
+  
+  /* Main Image */
+  .main-image {
+    width: 100%;
+    height: auto;
+    border: 2px solid whitesmoke;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 100px;
+  }
+  
+  .main-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Typography */
+  .heading {
+    font-size: 2.5rem;
+    color: #25312d;
+    font-weight: bold;
+    margin-bottom: 0;
+    line-height: 1.2;
+    transition: color 0.3s ease;
+  }
+  
+  .heading:hover {
+    color: #3a4b45;
+  }
+  
+  .paragraph {
+    font-size: 1.2rem;
+    color: #25312d;
+    font-weight: 600;
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+  
+  /* Feature List */
+  .feature-list {
+    color: #25312d;
+    font-weight: 700;
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+  
+  /* About Us Section */
+  .about-us {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  
+  /* Team Section */
+  .team-section {
+    flex: 1;
+  }
+  
+  /* Team Grid Layout */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 30px;
+    opacity: 0;
+    animation: fadeIn 1.5s ease forwards;
+    animation-delay: 0.5s;
+  }
+  
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  /* Individual Team Member */
+  .team-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f3f4f6;
+    padding: 15px;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Team Image */
+  .team-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .team-image:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Team Name */
+  .team-name {
+    font-size: 1.5rem;
+    color: #25312d;
+    font-weight: bold;
+    margin-top: 1px;
+    text-align: center;
+  }
+  
+  /* Media Queries for Responsiveness */
+  @media (max-width: 1024px) {
+    .text-section,
+    .image-section {
+      max-width: 100%;
+    }
+  
+    .section {
+      flex-direction: column;
+    }
+  
+    .heading {
+      font-size: 2rem;
+    }
+  
+    .paragraph {
+      font-size: 1.1rem;
+    }
+  
+    .team-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .translate-button {
+      position: relative;
+      float: none;
+      width: 100%;
+      margin-bottom: 0;
+    }
+  
+    .team-grid {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  
+    .heading {
+      font-size: 1.8rem;
+    }
+  
+    .paragraph {
+      font-size: 1rem;
+    }
+  
+    .main-image {
+      width: 100%;
+      height: auto;
+    }
+  }
+  

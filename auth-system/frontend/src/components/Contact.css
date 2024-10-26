@@ -1,0 +1,245 @@
+/* General Container */
+ 
+/* Contact Info Styling */
+/* Contact Info Styling */
+.contact.info {
+  
+  padding: 30px;
+  border-radius: 12px; /* Rounded corners for a polished look */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Depth-enhancing shadow */
+  text-align: left; /* Align content to the left for better readability */
+}
+
+.contact.info h3 {
+  color: #2d3748; /* Darker, modern text color */
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px; /* Spacing below the heading */
+  border-bottom: 2px solid #edf2f7; /* Soft underline for emphasis */
+  padding-bottom: 10px; /* Space below the heading */
+}
+
+/* Info Box Content */
+.infobox {
+  margin-top: 20px;
+}
+
+.infobox a,
+.infobox p {
+  color: #000000; /* Modern, neutral text color */
+  font-size: 16px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.infobox a:hover {
+  color: #2d3748; /* Slightly darker text color on hover */
+}
+
+.infobox p {
+  margin-bottom: 10px; /* Space between each info item */
+}
+
+/* Icon Styling for Better Visuals */
+.infobox a span,
+.infobox p span {
+  color: #232221; /* Highlight color for icons */
+  font-size: 20px;
+  margin-right: 10px; /* Space between icon and text */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact.info {
+    padding: 20px;
+  }
+
+  .contact.info h3 {
+    font-size: 20px;
+  }
+
+  .infobox a,
+  .infobox p {
+    font-size: 14px;
+  }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact.info {
+    padding: 20px;
+  }
+
+  .contact.info h3 {
+    font-size: 20px;
+  }
+
+  .infobox a,
+  .infobox p {
+    font-size: 14px;
+  }
+}
+
+/* Translate Button */
+.translate-button {
+  position: sticky;
+  top: 20px;
+  background-color: #25312d;
+  color: white;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px; /* Softer corners */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+}
+
+.translate-button:hover {
+  background-color: #3a4b45;
+  transform: scale(1.05);
+}
+
+/* Contact Us Section */
+.contactus {
+  text-align: center;
+  margin-bottom: 30px; /* Space between title and form */
+}
+
+.title h2 {
+  font-weight: bold;
+  font-size: 32px; /* Slightly larger title for prominence */
+  color: #25312d;
+  margin-bottom: 30px;
+  letter-spacing: 1.5px;
+}
+
+/* Form and Info Section */
+.contact.form,
+.contact.info {
+  margin-bottom: 40px; /* Additional spacing for better layout */
+}
+
+.contact.form h3,
+.contact.info h3 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #25312d;
+  margin-bottom: 15px;
+}
+
+.formbox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Consistent gap between rows */
+  justify-content: space-between;
+}
+
+/* Row Spacing */
+.row50 {
+  width: 48%;
+}
+
+.inputbox {
+  margin: 10px 0;
+}
+
+.inputbox span {
+  font-size: 16px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  color: #25312d;
+}
+
+.inputbox input,
+.inputbox textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px; /* Smooth rounded corners */
+  transition: border 0.3s ease;
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+}
+
+.inputbox input:focus,
+.inputbox textarea:focus {
+  border-color: #3a4b45;
+  outline: none;
+}
+
+/* Submit Button */
+.submit-button {
+  background-color: #25312d;
+  color: white;
+  font-weight: bold;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px; /* Softer corners */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  margin-top: 20px;
+}
+
+.submit-button:hover {
+  background-color: #3a4b45;
+  transform: translateY(-2px); /* Subtle hover lift */
+}
+
+/* Info Box Styling */
+.contact.info {
+  background-color: rgba(37, 49, 45, 0.85);
+  padding: 20px;
+  border-radius: 12px; /* Softer corners */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Shadow for depth */
+}
+
+.infobox a,
+.infobox p {
+  color: #222; /* Darker color for better contrast */
+  font-size: 18px; /* Slightly larger text for better emphasis */
+  margin-bottom: 15px;
+  display: block;
+  text-decoration: none;
+  font-weight: 700; /* Bold text for stronger impact */
+  letter-spacing: 0.5px; /* Adds a subtle letter spacing */
+  transition: color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+.infobox a:hover,
+.infobox p:hover {
+  color: #d35400; /* Highlight color on hover for an engaging effect */
+  transform: scale(1.02); /* Slight enlargement on hover */
+}
+
+
+/* Map Styling */
+.contact.map iframe {
+  width: 100%;
+  height: 300px;
+  border: 0;
+  border-radius: 12px; /* Smooth corners for map */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .row50 {
+    width: 100%; /* Full width for smaller screens */
+  }
+
+  .submit-button {
+    width: 100%; /* Full-width button for small screens */
+  }
+
+  .translate-button {
+    width: 100%;
+    text-align: center; /* Centered translate button */
+  }
+}

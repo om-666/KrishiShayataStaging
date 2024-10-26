@@ -76,32 +76,32 @@ function Navbar({ isAuthenticated, onLogout }) {
               </Link>
             </li>
 
-            {/* Authentication Links */}
-            {!isAuthenticated && (
+            {/* Private Links - Only for Authenticated Users */}
+            {isAuthenticated && (
               <>
                 <li>
-                  <Link to="/signup" className="block py-2 px-3 text-white rounded hover:bg-gray-700">
-                    Signup
+                  <Link to="/dashboard" className="block py-2 px-3 text-white rounded hover:bg-gray-700">
+                    Dashboard
                   </Link>
                 </li>
-                 
               </>
             )}
 
-            {/* Private Home Link */}
-            {isAuthenticated && (
+            {/* Authentication Links */}
+            {!isAuthenticated && (
               <li>
-                <Link to="/home" className="block py-2 px-3 text-white rounded hover:bg-gray-700">
-                  Home
+                <Link to="/signup" className="block py-2 px-3 text-white rounded hover:bg-gray-700">
+                  Signup
                 </Link>
               </li>
             )}
 
             {/* Login/Logout Button */}
             <li>
-              <button style={{ backgroundColor: '#7A9578' }}
+              <button
                 onClick={handleAuthAction}
-                className="bg-green-500  text-white py-2 px-4 rounded-md"
+                className="text-white py-2 px-4 rounded-md"
+                style={{ backgroundColor: '#7A9578' }}
               >
                 {isAuthenticated ? 'Logout' : 'Login'}
               </button>

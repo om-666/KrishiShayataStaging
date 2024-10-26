@@ -1,47 +1,75 @@
-import React, { useState } from 'react';
+// App.js
+
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Home from './components/Home';
+import Dashboard from './components/Dashboard';
 import Navbar from './components/Navbar';
-import './index.css'; // Import Tailwind styles
-
+import AboutPage from './components/About';
+import Contact from './components/Contact'; 
+import Footer from './components/Footer'; // Import the Footer component
+import Cookies from 'js-cookie'; // Import the js-cookie library
+ 
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Check initial authentication state from Cookies
+    return !!Cookies.get('userAadhar');
+  });
 
   // Function to handle authentication state
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (aadhar) => {
+    // Save the Aadhar in Cookies for persistence
+    Cookies.set('userAadhar', aadhar, { expires: 7 }); // Set cookie to expire in 7 days
     setIsAuthenticated(true);
   };
 
   // Function to handle logout
   const handleLogout = () => {
     setIsAuthenticated(false);
+    Cookies.remove('userAadhar'); // Remove Aadhar from cookies on logout
   };
 
-  // Private route component
+  // Private Route Component for authenticated access only
   const PrivateRoute = ({ element }) => {
     return isAuthenticated ? element : <Navigate to="/login" />;
   };
 
+  // Unauthenticated Route Component for login/signup access
+  const UnauthenticatedRoute = ({ element }) => {
+    return !isAuthenticated ? element : <Navigate to="/home" />;
+  };
+
+  // Get user Aadhar from cookies
+  const userAadhar = Cookies.get('userAadhar');
+
+  useEffect(() => {
+    // If the cookie changes, update the authentication state
+    setIsAuthenticated(!!userAadhar);
+  }, [userAadhar]);
+
   return (
     <Router>
-      {/* Navbar */}
       <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+      
+        <Routes>
+          {/* Unauthenticated routes */}
+          <Route path="/signup" element={<UnauthenticatedRoute element={<Signup />} />} />
+          <Route path="/login" element={<UnauthenticatedRoute element={<Login onLoginSuccess={(aadhar) => handleLoginSuccess(aadhar)} />} />} />
 
-      {/* Routes */}
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-        
-        {/* Private Route */}
-        <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+          {/* Private routes (authenticated only) */}
+          <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+          <Route path="/dashboard" element={<PrivateRoute element={<Dashboard userAadhar={userAadhar} />} />} />
+          <Route path="/about" element={<PrivateRoute element={<AboutPage />} />} />
+          <Route path="/contact" element={<PrivateRoute element={<Contact />} />} />  
 
-        {/* Default route */}
-        <Route path="/" element={<Signup />} />
-      </Routes>
+          {/* Default route */}
+          <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
+        </Routes>
+     
+      <Footer /> {/* Add the Footer component */}
     </Router>
   );
 }
