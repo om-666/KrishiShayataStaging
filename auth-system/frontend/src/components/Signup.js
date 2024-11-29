@@ -20,7 +20,7 @@ function Signup() {
   // Handle Signup
   const handleSignup = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/signup', {
+      const response = await axios.post('http://localhost:5000/api/auth/signup', {
         fullName,
         phone,
         aadhar,
@@ -30,7 +30,7 @@ function Signup() {
       });
       setMessage(response.data.message);
       // Redirect to login page if signup is successful
-      if (response.status === 200) {
+      if (response.status === 201) {
         navigate('/login');
       }
     } catch (error) {

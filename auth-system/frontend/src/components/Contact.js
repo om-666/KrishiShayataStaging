@@ -1,20 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import emailjs from 'emailjs-com';
 import './Contact.css';
 
 const Contact = () => {
   const [isEnglishDisplayed, setIsEnglishDisplayed] = useState(true);
-  const { register, handleSubmit, reset } = useForm();
+  const [lang, setLang] = useState("en"); // Default to English
+  const [mode, setMode] = useState("phonetic"); // Default to Phonetic
+  const { register, handleSubmit, reset, setValue } = useForm();
 
-  const translate = () => {
-    setIsEnglishDisplayed((prev) => !prev);
+  // Swalekh Credentials
+  const swalekhCredentials = {
+    apiKey: "rev.transliteration", 
+    appId: "172c5bb5af18516905473091fd58d30afe740b3f", 
+    apiEndPoint: "https://swalekht13n.reverieinc.com/transliteration"
   };
 
+  // Language toggle function
+  const translate = () => {
+    setIsEnglishDisplayed((prev) => !prev);
+    setLang(isEnglishDisplayed ? "or" : "en"); // Switch between English and Odia
+    setMode((prevMode) => (prevMode === "phonetic" ?  "phonetic":  "keyboard")); // Toggle mode
+  };
+
+  // Get button text depending on language
   const getButtonText = () => {
     return isEnglishDisplayed ? 'ଓଡ଼ିଆ' : 'English';
   };
 
+  // Initialize Swalekh on specific elements like textareas
+  const initSwalekh = () => {
+    const element = document.querySelector(".swalekh-t13n");
+    if (!element) {
+      console.error("Swalekh text area element not found!");
+      return;
+    }
+
+    // Logging the mode and language for debugging
+    console.log("Initializing Swalekh with mode:", mode, "and language:", lang);
+
+    window.loadSwalekh({
+      apiKey: swalekhCredentials.apiKey,
+      appId: swalekhCredentials.appId,
+      querySel: ".swalekh-t13n",  // Target specific element by class
+      lang: lang, // Set language dynamically
+      domain: 1, // Domain code (1 for Indic, 0 for non-Indic)
+      mode: mode === 'phonetic' ? 'phonetic' : 'keyboard', // Set the mode dynamically
+    });
+  };
+
+  // Cleanup when changing language or mode
+  useEffect(() => {
+    initSwalekh();
+    return () => {
+      // Unload Swalekh to avoid memory leaks
+      window.unloadSwalekh({ querySel: ".swalekh-t13n" });
+    };
+  }, [lang, mode]); // Reinitialize on language or mode change
+
+  // Email submission handler
   const sendEmail = async (data) => {
     emailjs.init('tAmGf6bzxl7EmrbL4');
     try {
@@ -38,7 +82,7 @@ const Contact = () => {
         {getButtonText()}
       </button>
       <div className="content">
-        {/* Display English Section */}
+        {/* English Section */}
         {isEnglishDisplayed && (
           <section className="body">
             <div className="contactus">
@@ -101,6 +145,7 @@ const Contact = () => {
                             {...register('message')}
                             placeholder="Write Your Message"
                             aria-label="Message"
+                            className="swalekh-t13n"  // Add the class for Swalekh to identify
                             required
                           ></textarea>
                         </div>
@@ -113,28 +158,12 @@ const Contact = () => {
                     </div>
                   </form>
                 </div>
-
-                <div className="infobox">
-                  <p><span className="fas fa-map-marker-alt"></span> ITER Bhubaneswar</p>
-                  <a href="mailto:loremlipsum@gmail.com"><span className="fas fa-envelope"></span> loremlipsum@gmail.com</a>
-                  <a href="tel:+916370081836"><span className="fas fa-phone"></span> +91 6370081836</a>
-                </div>
-
-                <div className="contact map">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3743.216091612362!2d85.80023069999999!3d20.2498709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19a7a3b9692fff%3A0x87cd0a356bbc39ce!2sITER%2C%20Siksha%20'Anusandhan!5e0!3m2!1sen!2sin!4v1669797534544!5m2!1sen!2sin"
-                    style={{ border: 0 }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    title="Google Map"
-                  ></iframe>
-                </div>
               </div>
             </div>
           </section>
         )}
 
-        {/* Display Odia Section */}
+        {/* Odia Section */}
         {!isEnglishDisplayed && (
           <section className="body">
             <div className="contactus">
@@ -195,8 +224,9 @@ const Contact = () => {
                           <span>ପ୍ରଶ୍ନ କିମ୍ବା ସନ୍ଦେଶ</span>
                           <textarea
                             {...register('message')}
-                            placeholder="ଆପଣଙ୍କ ସନ୍ଦେଶ ଲେଖନ୍ତୁ"
+                            placeholder="ଆପଣଙ୍କର ସନ୍ଦେଶ ଲେଖନ୍ତୁ"
                             aria-label="ସନ୍ଦେଶ"
+                            className="swalekh-t13n"  // Add class for Swalekh
                             required
                           ></textarea>
                         </div>
@@ -208,22 +238,6 @@ const Contact = () => {
                       </div>
                     </div>
                   </form>
-                </div>
-
-                <div className="infobox">
-                  <p><span className="fas fa-map-marker-alt"></span> ITER Bhubaneswar</p>
-                  <a href="mailto:loremlipsum@gmail.com"><span className="fas fa-envelope"></span> loremlipsum@gmail.com</a>
-                  <a href="tel:+916370081836"><span className="fas fa-phone"></span> +91 6370081836</a>
-                </div>
-
-                <div className="contact map">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3743.216091612362!2d85.80023069999999!3d20.2498709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19a7a3b9692fff%3A0x87cd0a356bbc39ce!2sITER%2C%20Siksha%20'Anusandhan!5e0!3m2!1sen!2sin!4v1669797534544!5m2!1sen!2sin"
-                    style={{ border: 0 }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    title="Google Map"
-                  ></iframe>
                 </div>
               </div>
             </div>

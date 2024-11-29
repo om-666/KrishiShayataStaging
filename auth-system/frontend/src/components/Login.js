@@ -14,7 +14,7 @@ function Login({ onLoginSuccess }) { // Accept onLoginSuccess prop
   // Handle Login
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/login', { aadhar, password });
+      const response = await axios.post('http://localhost:5000/api/auth/login', { aadhar, password });
       
       // Check if login is successful
       if (response.status === 200) {
