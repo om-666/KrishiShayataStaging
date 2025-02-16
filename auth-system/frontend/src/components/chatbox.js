@@ -1,0 +1,177 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Send, MessageCircle, Leaf, X, Loader2, Sprout } from "lucide-react";
+
+const ChatBot = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const chatRef = useRef(null);
+
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const handleSend = async () => {
+        if (!input.trim()) return;
+
+        const userMessage = { text: input, sender: "user", time: new Date() };
+        setMessages((prev) => [...prev, userMessage]);
+        setInput("");
+        setIsTyping(true);
+
+        try {
+            const response = await fetch("https://krihsimitra.onrender.com/chatbot", {
+                method: "POST",
+                mode: "cors",
+                redirect: "follow",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: input }),
+            });
+
+            const data = await response.json();
+
+            setIsTyping(false);
+            const botResponse = {
+                text: data.response || "Sorry, I couldn't understand that.",
+                sender: "bot",
+                time: new Date(),
+            };
+
+            setMessages((prev) => [...prev, botResponse]);
+        } catch (error) {
+            setIsTyping(false);
+            setMessages((prev) => [
+                ...prev,
+                { text: "Error fetching response. Try again later.", sender: "bot", time: new Date() },
+            ]);
+        }
+    };
+
+    const formatTime = (date) => {
+        return new Date(date).toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        });
+    };
+
+    return (
+        <div className="fixed bottom-5 right-5 z-50">
+            {/* Chat Toggle Button */}
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-4 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 
+                          transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+            >
+                {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+            </button>
+
+            {/* Chat Window */}
+            {isOpen && (
+                <div className="w-80 md:w-96 h-[500px] bg-white shadow-2xl rounded-2xl fixed bottom-20 right-5 
+                              flex flex-col animate-in slide-in-from-bottom-2 overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-[#364641] text-white p-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <Leaf className="text-green-300" size={20} />
+                                <div>
+                                    <h3 className="font-bold text-lg">कृषि मित्र</h3>
+                                    <p className="text-sm text-green-50">Krishi Mitra</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="p-2 hover:bg-green-600 rounded-full transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Messages Area */}
+                    <div ref={chatRef} className="flex-1 p-4 overflow-y-auto bg-gray-50">
+                        {messages.length === 0 ? (
+                            <div className="text-center h-full flex flex-col items-center justify-center p-4">
+                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                                    <Sprout size={40} className="text-green-600" />
+                                </div>
+                                <h4 className="text-2xl font-bold text-green-800 mb-2">कृषि मित्र</h4>
+                                <h5 className="text-xl font-semibold text-green-700 mb-4">Krishi Mitra</h5>
+                                <p className="text-gray-600 mb-4">Your Personal Farming Assistant</p>
+                                <div className="space-y-2 text-sm text-gray-500">
+                                    <p>• Get expert farming advice</p>
+                                    <p>• Learn about crop management</p>
+                                    <p>• Discover best practices</p>
+                                    <p>• 24/7 farming guidance</p>
+                                </div>
+                                <p className="mt-6 text-green-600 font-medium">Type your question to get started!</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {messages.map((msg, index) => (
+                                    <div
+                                        key={index}
+                                        className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                    >
+                                        <div className="flex flex-col space-y-1 max-w-[80%]">
+                                            <div
+                                                className={`p-3 rounded-2xl ${msg.sender === "user"
+                                                    ? "bg-[#364641] text-white rounded-tr-none"
+                                                    : "bg-white shadow-sm text-gray-800 rounded-tl-none"
+                                                    }`}
+                                            >
+                                                {msg.text}
+                                            </div>
+                                            <span className="text-xs text-gray-500 px-2">
+                                                {formatTime(msg.time)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {isTyping && (
+                                    <div className="flex justify-start">
+                                        <div className="bg-white rounded-2xl px-4 py-2 shadow-sm">
+                                            <div className="flex items-center space-x-2">
+                                                <Loader2 size={16} className="animate-spin text-green-600" />
+                                                <span className="text-gray-500 text-sm">Typing...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Input Area */}
+                    <div className="p-4 bg-white border-t">
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="text"
+                                className="flex-1 p-3 border border-gray-200 rounded-full focus:outline-none 
+                                         focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
+                                placeholder="Ask your farming question..."
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                            />
+                            <button
+                                onClick={handleSend}
+                                disabled={!input.trim()}
+                                className="p-3 bg-green-600 text-white rounded-full hover:bg-green-700 
+                                         transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Send size={20} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ChatBot;

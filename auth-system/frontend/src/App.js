@@ -8,10 +8,11 @@ import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Navbar from './components/Navbar';
 import AboutPage from './components/About';
-import Contact from './components/Contact'; 
+import Contact from './components/Contact';
 import Footer from './components/Footer'; // Import the Footer component
 import Cookies from 'js-cookie'; // Import the js-cookie library
- 
+import ChatBot from './components/chatbox';
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -53,22 +54,23 @@ function App() {
   return (
     <Router>
       <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-      
-        <Routes>
-          {/* Unauthenticated routes */}
-          <Route path="/signup" element={<UnauthenticatedRoute element={<Signup />} />} />
-          <Route path="/login" element={<UnauthenticatedRoute element={<Login onLoginSuccess={(aadhar) => handleLoginSuccess(aadhar)} />} />} />
+      <ChatBot />
 
-          {/* Private routes (authenticated only) */}
-          <Route path="/home" element={<PrivateRoute element={<Home />} />} />
-          <Route path="/dashboard" element={<PrivateRoute element={<Dashboard userAadhar={userAadhar} />} />} />
-          <Route path="/about" element={<PrivateRoute element={<AboutPage />} />} />
-          <Route path="/contact" element={<PrivateRoute element={<Contact />} />} />  
+      <Routes>
+        {/* Unauthenticated routes */}
+        <Route path="/signup" element={<UnauthenticatedRoute element={<Signup />} />} />
+        <Route path="/login" element={<UnauthenticatedRoute element={<Login onLoginSuccess={(aadhar) => handleLoginSuccess(aadhar)} />} />} />
 
-          {/* Default route */}
-          <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
-        </Routes>
-     
+        {/* Private routes (authenticated only) */}
+        <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+        <Route path="/dashboard" element={<PrivateRoute element={<Dashboard userAadhar={userAadhar} />} />} />
+        <Route path="/about" element={<PrivateRoute element={<AboutPage />} />} />
+        <Route path="/contact" element={<PrivateRoute element={<Contact />} />} />
+
+        {/* Default route */}
+        <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
+      </Routes>
+
       <Footer /> {/* Add the Footer component */}
     </Router>
   );
