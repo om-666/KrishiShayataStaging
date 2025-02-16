@@ -15,19 +15,27 @@ function Login({ onLoginSuccess }) { // Accept onLoginSuccess prop
   const handleLogin = async () => {
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', { aadhar, password });
-      
-      // Check if login is successful
-      if (response.status === 200) {
+  
+      console.log("Full API Response:", response.data); // Debugging log
+  
+      if (response.status === 200 && response.data.aadhar) { // Ensure 'aadhar' exists
         setMessage('Login successful!');
-        onLoginSuccess(); // Set authentication state in App.js
-        navigate('/home'); // Redirect to home
+  
+        localStorage.setItem('userAadhar', response.data.aadhar);
+        console.log("Aadhar Card Response:", response.data.aadhar);
+  
+        onLoginSuccess();
+        navigate('/home');
       } else {
         setMessage('Invalid Aadhar number or password.');
       }
     } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
       setMessage(error.response?.data?.message || 'Error logging in');
     }
   };
+  
+  
 
   return (
     <Parallax
@@ -36,7 +44,7 @@ function Login({ onLoginSuccess }) { // Accept onLoginSuccess prop
       style={{ height: '100vh' }}
       bgImageStyle={{ height: '100vh', width: '100vw', objectFit: 'cover' }}
     >
-      <div className="login-container pt-16 ">
+      <div className="login-container pt-16">
         <h3 className="login-title">Login</h3>
         <div className="login-form-container">
           {/* Aadhar Input */}
