@@ -71,7 +71,7 @@ function App() {
         <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
       </Routes>
 
-      <Footer /> {/* Add the Footer component */}
+      <Footer />
     </Router>
   );
 }
