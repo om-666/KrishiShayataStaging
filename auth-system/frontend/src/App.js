@@ -12,6 +12,9 @@ import Contact from './components/Contact';
 import Footer from './components/Footer'; // Import the Footer component
 import Cookies from 'js-cookie'; // Import the js-cookie library
 import ChatBot from './components/chatbox';
+import Complain from './components/complain';
+import ApplyInsuranceForm from './components/ApplyCropInsurance';
+
 
 
 function App() {
@@ -66,6 +69,8 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute element={<Dashboard userAadhar={userAadhar} />} />} />
         <Route path="/about" element={<PrivateRoute element={<AboutPage />} />} />
         <Route path="/contact" element={<PrivateRoute element={<Contact />} />} />
+        <Route path="/complain" element={<PrivateRoute element={<Complain />} />} />
+        <Route path="/apply" element={<PrivateRoute element={<ApplyInsuranceForm />} />} />
 
         {/* Default route */}
         <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
