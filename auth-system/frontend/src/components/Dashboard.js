@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { User, Phone, Mail, MapPin, CreditCard } from 'lucide-react';
+import { User, Phone, Mail, MapPin, CreditCard, LogOut } from 'lucide-react';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -11,7 +11,7 @@ function Dashboard() {
     const fetchUserData = async () => {
       const aadhar = localStorage.getItem('userAadhar');
       if (!aadhar) {
-        navigate('/login'); // Redirect to login if not authenticated
+        navigate('/login');
         return;
       }
       try {
@@ -25,86 +25,97 @@ function Dashboard() {
     fetchUserData();
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('userAadhar');
+    navigate('/login');
+  };
+
   return (
-    <div className="min-h-screen mt-5 animate-fadeIn">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-[#2a3633]/50 backdrop-blur-lg rounded-2xl shadow-2xl p-6 mb-8 border border-[#ffffff0f] hover:border-[#ffffff1f] transition-all duration-300
-                    animate-slideDown opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
-          <div className="flex items-center gap-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-emerald-900 to-teal-900 overflow-hidden">
+      {/* Header */}
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Profile Header */}
+        <div className="bg-gradient-to-r from-emerald-800/50 to-teal-800/50 backdrop-blur-lg rounded-2xl shadow-2xl p-8 mb-8 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 animate-slideDown">
+          <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 flex items-center justify-center p-1 animate-scaleIn opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
-                <div className="w-full h-full rounded-full bg-[#2a3633] flex items-center justify-center group-hover:scale-95 transition-transform duration-300">
-                  <span className="text-3xl font-bold text-emerald-400 group-hover:text-emerald-300">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 p-1 animate-scaleIn">
+                <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center group-hover:scale-95 transition-transform duration-300">
+                  <span className="text-4xl font-bold text-emerald-400 group-hover:text-emerald-300">
                     {user?.fullName?.charAt(0) || 'U'}
                   </span>
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#2a3633] animate-pulse"></div>
+              <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-400 rounded-full border-4 border-gray-900 animate-pulse"></div>
             </div>
-            <div className="animate-slideRight opacity-0 [animation-delay:400ms] [animation-fill-mode:forwards]">
-              <h1 className="text-2xl font-bold text-white/90">{user?.fullName}</h1>
-              <p className="text-emerald-400/80">Welcome to your dashboard</p>
+            <div className="text-center md:text-left animate-fadeInUp">
+              <h1 className="text-4xl font-bold text-white mb-2">{user?.fullName || 'User'}</h1>
+              <p className="text-emerald-300 text-lg">Welcome to your personalized dashboard</p>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-[#2a3633]/50 backdrop-blur-lg rounded-xl shadow-2xl hover:shadow-emerald-900/20 transition-all duration-300 border border-[#ffffff0f] hover:border-[#ffffff1f] group
-                      animate-slideUp opacity-0 [animation-delay:600ms] [animation-fill-mode:forwards]">
-            <div className="p-6 border-b border-[#ffffff0f] group-hover:border-[#ffffff1f] transition-colors">
-              <div className="flex items-center gap-2">
-                <User className="h-5 w-5 text-emerald-400" />
-                <h2 className="text-xl font-semibold text-white/90">Personal Information</h2>
+
+        {/* Info Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-gradient-to-br from-emerald-800/50 to-teal-800/50 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-emerald-500/20 hover:border-emerald-500/40 group transition-all duration-300 hover:shadow-emerald-900/30 animate-slideUp">
+            <div className="border-b border-emerald-500/20 pb-4 mb-4 group-hover:border-emerald-500/40 transition-colors">
+              <div className="flex items-center gap-3">
+                <User className="h-6 w-6 text-emerald-400 animate-bounceIn" />
+                <h2 className="text-2xl font-semibold text-white">Personal Information</h2>
               </div>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-center space-x-4 p-4 bg-[#ffffff05] rounded-lg hover:bg-[#ffffff08] transition-colors
-                          animate-fadeIn opacity-0 [animation-delay:800ms] [animation-fill-mode:forwards]">
-                <Phone className="h-5 w-5 text-emerald-400" />
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '200ms' }}>
+                <Phone className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-400/80">Phone Number</p>
-                  <p className="font-medium text-white/80">{user?.phone}</p>
+                  <p className="text-sm text-emerald-300/80">Phone Number</p>
+                  <p className="font-medium text-white text-lg">{user?.phone || 'N/A'}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 p-4 bg-[#ffffff05] rounded-lg hover:bg-[#ffffff08] transition-colors
-                          animate-fadeIn opacity-0 [animation-delay:900ms] [animation-fill-mode:forwards]">
-                <CreditCard className="h-5 w-5 text-emerald-400" />
+              <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '300ms' }}>
+                <CreditCard className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-400/80">Aadhar Number</p>
-                  <p className="font-medium text-white/80">
-                    {user?.aadhar?.replace(/\d{4}(?=\d)/g, '$& ')}
+                  <p className="text-sm text-emerald-300/80">Aadhar Number</p>
+                  <p className="font-medium text-white text-lg">
+                    {user?.aadhar?.replace(/\d{4}(?=\d)/g, '$& ') || 'N/A'}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="bg-[#2a3633]/50 backdrop-blur-lg rounded-xl shadow-2xl hover:shadow-emerald-900/20 transition-all duration-300 border border-[#ffffff0f] hover:border-[#ffffff1f] group
-                      animate-slideUp opacity-0 [animation-delay:700ms] [animation-fill-mode:forwards]">
-            <div className="p-6 border-b border-[#ffffff0f] group-hover:border-[#ffffff1f] transition-colors">
-              <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-emerald-400" />
-                <h2 className="text-xl font-semibold text-white/90">Contact Details</h2>
+
+          <div className="bg-gradient-to-br from-emerald-800/50 to-teal-800/50 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-emerald-500/20 hover:border-emerald-500/40 group transition-all duration-300 hover:shadow-emerald-900/30 animate-slideUp" style={{ animationDelay: '100ms' }}>
+            <div className="border-b border-emerald-500/20 pb-4 mb-4 group-hover:border-emerald-500/40 transition-colors">
+              <div className="flex items-center gap-3">
+                <Mail className="h-6 w-6 text-emerald-400 animate-bounceIn" />
+                <h2 className="text-2xl font-semibold text-white">Contact Details</h2>
               </div>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-center space-x-4 p-4 bg-[#ffffff05] rounded-lg hover:bg-[#ffffff08] transition-colors
-                          animate-fadeIn opacity-0 [animation-delay:1000ms] [animation-fill-mode:forwards]">
-                <Mail className="h-5 w-5 text-emerald-400" />
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '400ms' }}>
+                <Mail className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-400/80">Email Address</p>
-                  <p className="font-medium text-white/80">{user?.email}</p>
+                  <p className="text-sm text-emerald-300/80">Email Address</p>
+                  <p className="font-medium text-white text-lg">{user?.email || 'N/A'}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 p-4 bg-[#ffffff05] rounded-lg hover:bg-[#ffffff08] transition-colors
-                          animate-fadeIn opacity-0 [animation-delay:1100ms] [animation-fill-mode:forwards]">
-                <MapPin className="h-5 w-5 text-emerald-400" />
+              <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '500ms' }}>
+                <MapPin className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-400/80">Address</p>
-                  <p className="font-medium text-white/80">{user?.address}</p>
+                  <p className="text-sm text-emerald-300/80">Address</p>
+                  <p className="font-medium text-white text-lg">{user?.address || 'N/A'}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Decorative Background Elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
     </div>
   );
