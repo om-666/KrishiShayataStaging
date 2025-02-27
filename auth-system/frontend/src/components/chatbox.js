@@ -1,12 +1,60 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, MessageCircle, Leaf, X, Loader2, Sprout } from "lucide-react";
+import { Send, MessageCircle, Leaf, X, Loader2, Sprout, ChevronDown } from "lucide-react";
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState({ key: "en", label: "English" });
     const chatRef = useRef(null);
+
+    let apiKey = '<YOUR-API-KEY>';
+    let appId = '<YOUR-APP-ID>';
+
+    const sourceLanguages = [
+        { key: "en", label: "English" },
+        { key: "hi", label: "Hindi (हिन्दी)" },
+        { key: "as", label: "Assamese (অসমীয়া)" },
+        { key: "bn", label: "Bangla (বাংলা)" },
+        { key: "gu", label: "Gujarati (ગુજરાતી)" },
+        { key: "kn", label: "Kannada (ಕನ್ನಡ)" },
+        { key: "ml", label: "Malayalam (മലയാളം)" },
+        { key: "mr", label: "Marathi (मराठी)" },
+        { key: "or", label: "Odia (ଓଡ଼ିଆ)" },
+        { key: "pa", label: "Punjabi (ਪੰਜਾਬੀ)" },
+        { key: "ta", label: "Tamil (தமிழ்)" },
+        { key: "te", label: "Telugu (తెలుగు)" },
+    ];
+
+    const enableSwalekh = (querySelector, sourceLanguage, inputToolKey, domain = '1') => {
+        let creds = {
+            lang: sourceLanguage,
+            mode: inputToolKey,
+            apiKey,
+            appId,
+            querySel: querySelector,
+            domain: domain,
+            // apiEndpoint:"https://revapi.reverieinc.com/"
+        };
+        if (window?.loadSwalekh) {
+            window.loadSwalekh(creds);
+        }
+    };
+
+    const disableSwalekh = (querySelector) => {
+        if (window && window.unloadSwalekh) {
+            window.unloadSwalekh({ querySel: querySelector });
+        }
+    };
+
+    useEffect(() => {
+        enableSwalekh('#input-text', selectedLanguage.key, "phonetic", '1');
+        return () => {
+            disableSwalekh('#input-text');
+        };
+    }, [selectedLanguage]);
 
     useEffect(() => {
         if (chatRef.current) {
@@ -28,7 +76,9 @@ const ChatBot = () => {
                 mode: "cors",
                 redirect: "follow",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: input }),
+                body: JSON.stringify({
+                    message: input
+                }),
             });
 
             const data = await response.json();
@@ -50,6 +100,11 @@ const ChatBot = () => {
         }
     };
 
+    const handleLanguageSelect = (language) => {
+        setSelectedLanguage(language);
+        setIsLanguageDropdownOpen(false);
+    };
+
     const formatTime = (date) => {
         return new Date(date).toLocaleTimeString("en-US", {
             hour: "numeric",
@@ -60,7 +115,6 @@ const ChatBot = () => {
 
     return (
         <div className="fixed bottom-5 right-5 z-50">
-            {/* Chat Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="p-4 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 
@@ -68,8 +122,6 @@ const ChatBot = () => {
             >
                 {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
             </button>
-
-            {/* Chat Window */}
             {isOpen && (
                 <div className="w-80 md:w-96 h-[500px] bg-white shadow-2xl rounded-2xl fixed bottom-20 right-5 
                               flex flex-col animate-in slide-in-from-bottom-2 overflow-hidden">
@@ -83,12 +135,40 @@ const ChatBot = () => {
                                     <p className="text-sm text-green-50">Krishi Mitra</p>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="p-2 hover:bg-green-600 rounded-full transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
+                            <div className="flex items-center">
+                                {/* Language Dropdown */}
+                                <div className="relative mr-2">
+                                    <button
+                                        onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                                        className="flex items-center space-x-1 bg-green-700 hover:bg-green-800 rounded-md px-2 py-1 text-sm"
+                                    >
+                                        <span>{selectedLanguage.label.split(" ")[0]}</span>
+                                        <ChevronDown size={14} />
+                                    </button>
+
+                                    {isLanguageDropdownOpen && (
+                                        <div className="absolute right-0 mt-1 bg-white text-gray-800 shadow-lg rounded-md py-1 w-48 max-h-64 overflow-y-auto z-10">
+                                            {sourceLanguages.map((language) => (
+                                                <button
+                                                    key={language.key}
+                                                    onClick={() => handleLanguageSelect(language)}
+                                                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedLanguage.key === language.key ? "bg-green-50 text-green-800 font-medium" : ""
+                                                        }`}
+                                                >
+                                                    {language.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-2 hover:bg-green-600 rounded-full transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -150,10 +230,11 @@ const ChatBot = () => {
                     <div className="p-4 bg-white border-t">
                         <div className="flex items-center space-x-2">
                             <input
+                                id="input-text"
                                 type="text"
                                 className="flex-1 p-3 border border-gray-200 rounded-full focus:outline-none 
                                          focus:border-green-500 focus:ring focus:ring-green-200 transition-all"
-                                placeholder="Ask your farming question..."
+                                placeholder={`Ask your farming question in ${selectedLanguage.label.split(" ")[0]}...`}
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
