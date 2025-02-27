@@ -10,8 +10,8 @@ const ChatBot = () => {
     const [selectedLanguage, setSelectedLanguage] = useState({ key: "en", label: "English" });
     const chatRef = useRef(null);
 
-    let apiKey = '<YOUR-API-KEY>';
-    let appId = '<YOUR-APP-ID>';
+    let apiKey = process.env.API_KEY;
+    let appId = process.env.APP_ID;
 
     const sourceLanguages = [
         { key: "en", label: "English" },
