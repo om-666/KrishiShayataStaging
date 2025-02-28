@@ -10,8 +10,9 @@ const ChatBot = () => {
     const [selectedLanguage, setSelectedLanguage] = useState({ key: "en", label: "English" });
     const chatRef = useRef(null);
 
-    let apiKey = process.env.API_KEY;
-    let appId = process.env.APP_ID;
+    let apiKey = process.env.REACT_APP_API_KEY;
+    let appId = process.env.REACT_APP_APP_ID;
+
 
     const sourceLanguages = [
         { key: "en", label: "English" },
@@ -70,28 +71,106 @@ const ChatBot = () => {
         setInput("");
         setIsTyping(true);
 
+        let translatedInput = input;
+
+        if (selectedLanguage.key !== "en") {
+            try {
+                console.log("Translating user input:", input);
+                const translationRequest = {
+                    data: [input],
+                    enableNmt: true,
+                };
+                console.log("Translation API Request:", translationRequest);
+
+                const translationResponse = await fetch("https://revapi.reverieinc.com/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "REV-API-KEY": apiKey,
+                        "REV-APP-ID": appId,
+                        "src_lang": selectedLanguage.key,
+                        "tgt_lang": "en",
+                        "domain": "generic",
+                        "REV-APPNAME": "localization",
+                        "REV-APPVERSION": "3.0"
+                    },
+                    body: JSON.stringify(translationRequest)
+                });
+
+                const translationData = await translationResponse.json();
+                console.log("Translation API Response:", translationData);
+
+                translatedInput = translationData.responseList?.[0]?.outString || input;
+            } catch (error) {
+                console.error("Translation error:", error);
+                setMessages((prev) => [
+                    ...prev,
+                    { text: "Error translating message.", sender: "bot", time: new Date() },
+                ]);
+                setIsTyping(false);
+                return;
+            }
+        }
+
         try {
+            console.log("Sending message to chatbot:", translatedInput);
+            const chatbotRequest = { message: translatedInput };
+            console.log("Chatbot API Request:", chatbotRequest);
             const response = await fetch("https://krihsimitra.onrender.com/chatbot", {
                 method: "POST",
                 mode: "cors",
                 redirect: "follow",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: input
-                }),
+                body: JSON.stringify(chatbotRequest),
             });
 
             const data = await response.json();
+            console.log("Chatbot API Response:", data);
+
+            let botResponseText = data.response || "Sorry, I couldn't understand that.";
+
+            if (selectedLanguage.key !== "en") {
+                try {
+                    console.log("Translating bot response:", botResponseText);
+
+                    const reverseTranslationRequest = {
+                        data: [botResponseText],
+                        enableNmt: true
+                    };
+                    console.log("Reverse Translation API Request:", reverseTranslationRequest);
+
+                    const reverseTranslationResponse = await fetch("https://revapi.reverieinc.com/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "REV-API-KEY": apiKey,
+                            "REV-APP-ID": appId,
+                            "src_lang": "en",
+                            "tgt_lang": selectedLanguage.key,
+                            "domain": "generic",
+                            "REV-APPNAME": "localization",
+                            "REV-APPVERSION": "3.0"
+                        },
+                        body: JSON.stringify(reverseTranslationRequest)
+                    });
+
+                    const reverseTranslationData = await reverseTranslationResponse.json();
+                    console.log("Reverse Translation API Response:", reverseTranslationData);
+
+                    botResponseText = reverseTranslationData.responseList?.[0]?.outString || botResponseText;
+                } catch (error) {
+                    console.error("Reverse translation error:", error);
+                }
+            }
 
             setIsTyping(false);
-            const botResponse = {
-                text: data.response || "Sorry, I couldn't understand that.",
-                sender: "bot",
-                time: new Date(),
-            };
+            const botResponse = { text: botResponseText, sender: "bot", time: new Date() };
+            console.log("Final bot response sent to UI:", botResponse);
 
             setMessages((prev) => [...prev, botResponse]);
+
         } catch (error) {
+            console.error("Chatbot API Error:", error);
             setIsTyping(false);
             setMessages((prev) => [
                 ...prev,
@@ -99,6 +178,8 @@ const ChatBot = () => {
             ]);
         }
     };
+
+
 
     const handleLanguageSelect = (language) => {
         setSelectedLanguage(language);
