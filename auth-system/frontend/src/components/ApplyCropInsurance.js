@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { message, DatePicker } from 'antd';
+import axios from 'axios'; // Import Axios
 
 const ApplyInsuranceForm = () => {
     const [formData, setFormData] = useState({
@@ -153,7 +154,7 @@ const ApplyInsuranceForm = () => {
         setErrors(prev => ({ ...prev, season: validateField("season", value) }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const newErrors = {};
         Object.keys(formData).forEach(key => {
@@ -167,26 +168,37 @@ const ApplyInsuranceForm = () => {
             messageApi.error('Please fix all errors before submitting');
             return;
         }
-        setShowSuccess(true);
-        messageApi.success('Form submitted successfully!');
-        setFormData({
-            aadhar: "",
-            name: "",
-            district: "",
-            pincode: "",
-            account: "",
-            branch: "",
-            ifsc: "",
-            mobile: "",
-            crop: "",
-            dateOfSowing: "",
-            areaSown: "",
-            season: ""
-        });
-        setErrors({});
-        setTouchedFields({});
-        setTimeout(() => setShowSuccess(false), 3000);
-        console.log(formData);
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/submit', formData);
+            if (response.status === 200) {
+                setShowSuccess(true);
+                messageApi.success('Form submitted successfully!');
+                setFormData({
+                    aadhar: "",
+                    name: "",
+                    district: "",
+                    pincode: "",
+                    account: "",
+                    branch: "",
+                    ifsc: "",
+                    mobile: "",
+                    crop: "",
+                    dateOfSowing: "",
+                    areaSown: "",
+                    season: ""
+                });
+                setErrors({});
+                setTouchedFields({});
+                setTimeout(() => setShowSuccess(false), 3000);
+                console.log(formData);
+            } else {
+                messageApi.error('Failed to submit form. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            messageApi.error('Failed to submit form. Please try again.');
+        }
     };
 
     return (
