@@ -16,6 +16,12 @@ module.exports = {
         'fadeInUp': 'fadeInUp 0.5s ease-out',
         'bounceIn': 'bounceIn 0.5s ease-out',
         'spinSlow': 'spin 2s linear infinite',
+        'fadeIn': "fadeIn 0.5s ease-in-out",
+        'scaleIn': "scaleIn 0.3s ease-in-out",
+        'bounceIn': "bounceIn 0.5s ease-in-out",
+        'slideDown': "slideDown 0.5s ease-in-out",
+        'spinSlow': "spin 3s linear infinite",
+        'pulseSlow': "pulse 4s infinite",
       },
       keyframes: {
         // Your existing keyframes
@@ -103,6 +109,23 @@ module.exports = {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        scaleIn: {
+          "0%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)" },
+        },
+        bounceIn: {
+          "0%": { transform: "translateY(-20px)", opacity: "0" },
+          "60%": { transform: "translateY(5px)", opacity: "1" },
+          "100%": { transform: "translateY(0)" },
+        },
+        slideDown: {
+          "0%": { transform: "translateY(-20px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        }
       },
     },
   },
