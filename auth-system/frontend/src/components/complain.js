@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { message } from 'antd';
+import axios from "axios";
 
 const Complain = () => {
     const [formData, setFormData] = useState({
@@ -145,12 +146,17 @@ const Complain = () => {
         return true;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validateForm()) {
-            console.log("Form submitted:", formData);
+
+        if (!validateForm()) return;
+
+        try {
+            const response = await axios.post("http://localhost:5000/api/complain", formData);
+            messageApi.success(response.data.message || "Complaint submitted successfully!");
             setShowSuccess(true);
-            messageApi.success('Form submitted successfully!');
+
+            // Reset form
             setFormData({
                 name: "",
                 claimType: "",
@@ -171,9 +177,10 @@ const Complain = () => {
             setErrors({});
             setTouchedFields({});
             setTimeout(() => setShowSuccess(false), 3000);
+        } catch (error) {
+            messageApi.error(error.response?.data?.error || "Failed to submit complaint");
         }
     };
-
     const formSections = {
         "Personal Details": ["name", "phone", "address", "pincode"],
         "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss"],

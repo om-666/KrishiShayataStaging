@@ -6,6 +6,7 @@ const connectDB = require('./config/dbConfig'); // DB connection
 const authRoutes = require('./routes/authRoutes'); // Auth routes
 const User = require('./models/userModel'); // User Model
 const FormData = require('./models/formDataModel'); // Form Data Model
+const ComplainData = require('./models/cropLossModel');
 
 const app = express();
 
@@ -49,6 +50,17 @@ app.post('/api/submit', async (req, res) => {
     } catch (error) {
         console.error("Error saving data:", error);
         res.status(500).json({ message: "❌ Error saving data", error: error.message });
+    }
+});
+
+//Route to save the form data of Crop Loss
+app.post("/api/complain", async (req, res) => {
+    try {
+        const complaint = new ComplainData(req.body);
+        await complaint.save();
+        res.status(200).json({ message: "Complaint submitted successfully!", complaint });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
 });
 
