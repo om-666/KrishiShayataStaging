@@ -14,6 +14,7 @@ import Cookies from 'js-cookie'; // Import the js-cookie library
 import ChatBot from './components/chatbox';
 import Complain from './components/complain';
 import ApplyInsuranceForm from './components/ApplyCropInsurance';
+import Calculators from './components/calculator';
 
 
 
@@ -71,6 +72,7 @@ function App() {
         <Route path="/contact" element={<PrivateRoute element={<Contact />} />} />
         <Route path="/complain" element={<PrivateRoute element={<Complain />} />} />
         <Route path="/apply" element={<PrivateRoute element={<ApplyInsuranceForm />} />} />
+        <Route path="/calculator" element={<PrivateRoute element={<Calculators />} />} />
 
         {/* Default route */}
         <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
