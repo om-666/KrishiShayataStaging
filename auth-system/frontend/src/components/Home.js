@@ -79,7 +79,7 @@ const FeatureCard = () => {
             imageSrc="/assets/calculator.png"
             onMouseEnter={() => playAudio(audio5)}
             onMouseLeave={() => pauseAudio(audio5)}
-            href="https://om-666.github.io/krishi-sahayata-premimum-calculator/"
+            onClick={() => navigate("/calculator")}
           />
           <Card
             title="Apply for Crop Insurance"
