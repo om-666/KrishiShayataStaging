@@ -15,6 +15,7 @@ const complaintSchema = new mongoose.Schema({
     pincode: { type: String, required: true, match: /^\d{6}$/ },
     areaImpacted: { type: Number, required: true, min: 1 },
     causeOfLoss: { type: String, required: true },
+    aadhaar: { type: String, required: true, match: /^\d{12}$/ }, // Aadhaar validation
     createdAt: { type: Date, default: Date.now }
 });
 

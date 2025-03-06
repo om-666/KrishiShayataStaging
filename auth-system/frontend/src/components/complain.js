@@ -17,7 +17,8 @@ const Complain = () => {
         address: "",
         pincode: "",
         areaImpacted: "",
-        causeOfLoss: ""
+        causeOfLoss: "",
+        aadhaar: "" // Added Aadhaar field
     });
 
     const [errors, setErrors] = useState({});
@@ -61,6 +62,12 @@ const Complain = () => {
         areaImpacted: (value) => {
             if (!value) return "Area impacted is required";
             if (parseInt(value) <= 0) return "Area impacted must be greater than 0";
+            return "";
+        },
+        aadhaar: (value) => { // Validation for Aadhaar
+            if (!value) return "Aadhaar number is required";
+            if (value.length !== 12) return "Aadhaar number must be 12 digits";
+            if (!/^\d+$/.test(value)) return "Aadhaar number must contain only digits";
             return "";
         }
     };
@@ -107,6 +114,16 @@ const Complain = () => {
             }
             if (!/^\d*$/.test(value)) {
                 messageApi.warning('Account number must contain only digits');
+                return;
+            }
+        }
+        else if (name === "aadhaar") { // Handling Aadhaar input
+            if (value.length > 12) {
+                messageApi.warning('Aadhaar number cannot exceed 12 digits');
+                return;
+            }
+            if (!/^\d*$/.test(value)) {
+                messageApi.warning('Aadhaar number must contain only digits');
                 return;
             }
         }
@@ -171,7 +188,8 @@ const Complain = () => {
                 address: "",
                 pincode: "",
                 areaImpacted: "",
-                causeOfLoss: ""
+                causeOfLoss: "",
+                aadhaar: "" // Reset Aadhaar field
             });
 
             setErrors({});
@@ -181,8 +199,9 @@ const Complain = () => {
             messageApi.error(error.response?.data?.error || "Failed to submit complaint");
         }
     };
+
     const formSections = {
-        "Personal Details": ["name", "phone", "address", "pincode"],
+        "Personal Details": ["name", "phone", "address", "pincode", "aadhaar"], // Added Aadhaar to Personal Details
         "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss"],
         "Claim Details": ["claimType", "amount", "state", "district"],
         "Bank Details": ["bankName", "bankBranch", "accountNumber"]
