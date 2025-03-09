@@ -14,6 +14,7 @@ const ApplyInsuranceForm = () => {
         ifsc: "",
         mobile: "",
         crop: "",
+        reason: "",
         dateOfSowing: "",
         areaSown: "",
         season: "",
@@ -92,7 +93,7 @@ const ApplyInsuranceForm = () => {
     const formSections = {
         "Personal Details": ["aadhar", "name", "state", "district", "pincode"],
         "Bank Details": ["account", "branch", "ifsc"],
-        "Crop Details": ["crop", "dateOfSowing", "areaSown", "season"],
+        "Crop Details": ["crop", "reason", "dateOfSowing", "areaSown", "season"],
         "Contact Details": ["mobile"],
     };
 
@@ -106,7 +107,7 @@ const ApplyInsuranceForm = () => {
         state: (value) => (value ? "" : "State is required"),
         district: (value) => (value ? "" : "District is required"),
         pincode: (value) => {
-            if (!value) return "Pincode isCAFrequired";
+            if (!value) return "Pincode is required";
             if (value.length !== 6) return "Pincode must be 6 digits";
             if (!/^\d+$/.test(value)) return "Pincode must contain only digits";
             return "";
@@ -131,6 +132,7 @@ const ApplyInsuranceForm = () => {
         name: (value) => (value ? "" : "Name is required"),
         branch: (value) => (value ? "" : "Branch is required"),
         crop: (value) => (value ? "" : "Crop is required"),
+        reason: (value) => (value ? "" : "Reason is required"),
         dateOfSowing: (value) => (value ? "" : "Date of sowing is required"),
         areaSown: (value) => {
             if (!value) return "Area sown is required";
@@ -160,6 +162,14 @@ const ApplyInsuranceForm = () => {
             const selectedCrop = insuranceParams.find((param) => param.crop === value);
             if (selectedCrop) {
                 setFormData((prev) => ({ ...prev, crop: value, season: selectedCrop.season }));
+            }
+            return;
+        }
+
+        if (name === "reason") {
+            setFormData((prev) => ({ ...prev, reason: value }));
+            if (touchedFields[name]) {
+                setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
             }
             return;
         }
@@ -310,6 +320,7 @@ const ApplyInsuranceForm = () => {
             ifsc: "",
             mobile: "",
             crop: "",
+            reason: "",
             dateOfSowing: "",
             areaSown: "",
             season: "",
@@ -394,6 +405,20 @@ const ApplyInsuranceForm = () => {
                                                 {insuranceParams.map((param) => (
                                                     <option key={param.crop} value={param.crop}>{param.crop}</option>
                                                 ))}
+                                            </select>
+                                        ) : key === "reason" ? (
+                                            <select
+                                                name={key}
+                                                value={formData.reason}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"
+                                                    } bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
+                                            >
+                                                <option value="">Select a reason</option>
+                                                <option value="Drought">Drought</option>
+                                                <option value="Flood">Flood</option>
+                                                <option value="Excessive Snow">Excessive Snow</option>
                                             </select>
                                         ) : key === "season" ? (
                                             <input
