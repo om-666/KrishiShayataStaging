@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { message } from 'antd';
+import { message, DatePicker } from "antd";
 import axios from "axios";
 
 const Complain = () => {
@@ -18,13 +18,53 @@ const Complain = () => {
         pincode: "",
         areaImpacted: "",
         causeOfLoss: "",
-        aadhaar: "" // Added Aadhaar field
+        aadhaar: "",
+        sowingDate: "",
     });
 
     const [errors, setErrors] = useState({});
     const [showSuccess, setShowSuccess] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
     const [touchedFields, setTouchedFields] = useState({});
+
+    const districtOptions = {
+        "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool"],
+        "Arunachal Pradesh": ["Itanagar", "Tawang", "Pasighat", "Ziro", "Bomdila"],
+        "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon"],
+        "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Darbhanga"],
+        "Chhattisgarh": ["Raipur", "Bilaspur", "Durg", "Korba", "Raigarh"],
+        "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda"],
+        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"],
+        "Haryana": ["Faridabad", "Gurugram", "Hisar", "Rohtak", "Panipat"],
+        "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Solan", "Kullu"],
+        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar"],
+        "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubli", "Belagavi"],
+        "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam"],
+        "Madhya Pradesh": ["Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain"],
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
+        "Manipur": ["Imphal", "Churachandpur", "Thoubal", "Bishnupur", "Ukhrul"],
+        "Meghalaya": ["Shillong", "Tura", "Jowai", "Nongstoin", "Williamnagar"],
+        "Mizoram": ["Aizawl", "Lunglei", "Champhai", "Saiha", "Kolasib"],
+        "Nagaland": ["Kohima", "Dimapur", "Mokokchung", "Tuensang", "Wokha"],
+        "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Puri", "Sambalpur"],
+        "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
+        "Sikkim": ["Gangtok", "Namchi", "Gyalshing", "Mangan", "Pelling"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli"],
+        "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam"],
+        "Tripura": ["Agartala", "Udaipur", "Kailashahar", "Dharmanagar", "Belonia"],
+        "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Meerut"],
+        "Uttarakhand": ["Dehradun", "Haridwar", "Nainital", "Rishikesh", "Roorkee"],
+        "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Siliguri", "Asansol"],
+        "Andaman and Nicobar Islands": ["Port Blair", "Havelock", "Neil Island", "Diglipur", "Mayabunder"],
+        "Chandigarh": ["Chandigarh"],
+        "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Diu", "Silvassa"],
+        "Delhi": ["New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"],
+        "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla", "Kathua"],
+        "Ladakh": ["Leh", "Kargil"],
+        "Lakshadweep": ["Kavaratti", "Minicoy", "Agatti", "Andrott", "Kalpeni"],
+        "Puducherry": ["Puducherry", "Karaikal", "Mahe", "Yanam"],
+    };
 
     const validationRules = {
         phone: (value) => {
@@ -51,25 +91,26 @@ const Complain = () => {
             if (!/^\d+$/.test(value)) return "Account number must contain only digits";
             return "";
         },
-        bankName: (value) => value ? "" : "Bank name is required",
-        bankBranch: (value) => value ? "" : "Bank branch is required",
-        address: (value) => value.length >= 5 ? "" : "Address must be at least 5 characters",
-        district: (value) => value ? "" : "District is required",
-        state: (value) => value ? "" : "State is required",
-        claimType: (value) => value ? "" : "Claim type is required",
-        farmerType: (value) => value ? "" : "Farmer type is required",
-        causeOfLoss: (value) => value ? "" : "Cause of loss is required",
+        bankName: (value) => (value ? "" : "Bank name is required"),
+        bankBranch: (value) => (value ? "" : "Bank branch is required"),
+        address: (value) => (value.length >= 5 ? "" : "Address must be at least 5 characters"),
+        district: (value) => (value ? "" : "District is required"),
+        state: (value) => (value ? "" : "State is required"),
+        claimType: (value) => (value ? "" : "Claim type is required"),
+        farmerType: (value) => (value ? "" : "Farmer type is required"),
+        causeOfLoss: (value) => (value ? "" : "Cause of loss is required"),
         areaImpacted: (value) => {
             if (!value) return "Area impacted is required";
             if (parseInt(value) <= 0) return "Area impacted must be greater than 0";
             return "";
         },
-        aadhaar: (value) => { // Validation for Aadhaar
+        aadhaar: (value) => {
             if (!value) return "Aadhaar number is required";
             if (value.length !== 12) return "Aadhaar number must be 12 digits";
             if (!/^\d+$/.test(value)) return "Aadhaar number must contain only digits";
             return "";
-        }
+        },
+        sowingDate: (value) => (value ? "" : "Date of sowing is required"),
     };
 
     const validateField = (name, value) => {
@@ -83,70 +124,81 @@ const Complain = () => {
         let newValue = value;
         if (name === "phone") {
             if (value.length > 10) {
-                messageApi.warning('Phone number cannot exceed 10 digits');
+                messageApi.warning("Phone number cannot exceed 10 digits");
                 return;
             }
             if (!/^\d*$/.test(value)) {
-                messageApi.warning('Phone number must contain only digits');
+                messageApi.warning("Phone number must contain only digits");
                 return;
             }
-        }
-        else if (name === "pincode") {
+        } else if (name === "pincode") {
             if (value.length > 6) {
-                messageApi.warning('Pincode cannot exceed 6 digits');
+                messageApi.warning("Pincode cannot exceed 6 digits");
                 return;
             }
             if (!/^\d*$/.test(value)) {
-                messageApi.warning('Pincode must contain only digits');
+                messageApi.warning("Pincode must contain only digits");
                 return;
             }
-        }
-        else if (name === "amount" || name === "areaImpacted") {
+        } else if (name === "amount" || name === "areaImpacted") {
             if (!/^\d*$/.test(value)) {
-                messageApi.warning('This field must contain only digits');
+                messageApi.warning("This field must contain only digits");
                 return;
             }
-        }
-        else if (name === "accountNumber") {
+        } else if (name === "accountNumber") {
             if (value.length > 18) {
-                messageApi.warning('Account number cannot exceed 18 digits');
+                messageApi.warning("Account number cannot exceed 18 digits");
                 return;
             }
             if (!/^\d*$/.test(value)) {
-                messageApi.warning('Account number must contain only digits');
+                messageApi.warning("Account number must contain only digits");
                 return;
             }
-        }
-        else if (name === "aadhaar") { // Handling Aadhaar input
+        } else if (name === "aadhaar") {
             if (value.length > 12) {
-                messageApi.warning('Aadhaar number cannot exceed 12 digits');
+                messageApi.warning("Aadhaar number cannot exceed 12 digits");
                 return;
             }
             if (!/^\d*$/.test(value)) {
-                messageApi.warning('Aadhaar number must contain only digits');
+                messageApi.warning("Aadhaar number must contain only digits");
                 return;
             }
+        } else if (name === "state") {
+            // Reset district when state changes
+            setFormData((prev) => ({ ...prev, state: value, district: "" }));
+            setErrors((prev) => ({ ...prev, district: "District is required" }));
+            return;
         }
 
-        setFormData(prev => ({ ...prev, [name]: newValue }));
+        setFormData((prev) => ({ ...prev, [name]: newValue }));
         if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: "" }));
+            setErrors((prev) => ({ ...prev, [name]: "" }));
         }
     };
 
     const handleBlur = (e) => {
         const { name, value } = e.target;
-        setTouchedFields(prev => ({ ...prev, [name]: true }));
+        setTouchedFields((prev) => ({ ...prev, [name]: true }));
         const error = validateField(name, value);
-        setErrors(prev => ({
+        setErrors((prev) => ({
             ...prev,
-            [name]: error
+            [name]: error,
+        }));
+    };
+
+    const handleDateChange = (date, dateString) => {
+        setFormData((prev) => ({ ...prev, sowingDate: dateString }));
+        setTouchedFields((prev) => ({ ...prev, sowingDate: true }));
+        const error = validateField("sowingDate", dateString);
+        setErrors((prev) => ({
+            ...prev,
+            sowingDate: error,
         }));
     };
 
     const validateForm = () => {
         const newErrors = {};
-        Object.keys(formData).forEach(key => {
+        Object.keys(formData).forEach((key) => {
             const error = validateField(key, formData[key]);
             if (error) {
                 newErrors[key] = error;
@@ -154,10 +206,12 @@ const Complain = () => {
         });
 
         setErrors(newErrors);
-        setTouchedFields(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+        setTouchedFields(
+            Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+        );
 
         if (Object.keys(newErrors).length > 0) {
-            messageApi.error('Please fix all errors before submitting');
+            messageApi.error("Please fix all errors before submitting");
             return false;
         }
         return true;
@@ -173,7 +227,6 @@ const Complain = () => {
             messageApi.success(response.data.message || "Complaint submitted successfully!");
             setShowSuccess(true);
 
-            // Reset form
             setFormData({
                 name: "",
                 claimType: "",
@@ -189,7 +242,8 @@ const Complain = () => {
                 pincode: "",
                 areaImpacted: "",
                 causeOfLoss: "",
-                aadhaar: "" // Reset Aadhaar field
+                aadhaar: "",
+                sowingDate: "",
             });
 
             setErrors({});
@@ -201,10 +255,10 @@ const Complain = () => {
     };
 
     const formSections = {
-        "Personal Details": ["name", "phone", "address", "pincode", "aadhaar"], // Added Aadhaar to Personal Details
-        "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss"],
+        "Personal Details": ["name", "phone", "address", "pincode", "aadhaar"],
+        "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss", "sowingDate"],
         "Claim Details": ["claimType", "amount", "state", "district"],
-        "Bank Details": ["bankName", "bankBranch", "accountNumber"]
+        "Bank Details": ["bankName", "bankBranch", "accountNumber"],
     };
 
     return (
@@ -238,33 +292,77 @@ const Complain = () => {
                             {fields.map((key) => (
                                 <div key={key} className="relative group">
                                     <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
-                                        {key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}
+                                        {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
                                     </label>
-                                    {["claimType", "farmerType", "state", "causeOfLoss"].includes(key) ? (
+                                    {["claimType", "farmerType", "state", "causeOfLoss", "district"].includes(key) ? (
                                         <select
                                             name={key}
                                             required
                                             value={formData[key]}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? 'border-red-400 shadow-red-100' : 'border-emerald-200'} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
+                                            className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key]
+                                                    ? "border-red-400 shadow-red-100"
+                                                    : "border-emerald-200"
+                                                } bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
                                         >
                                             <option value="">
-                                                {`Select ${key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}`}
+                                                {`Select ${key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}`}
                                             </option>
-                                            {key === "claimType" && ["Farm Vehicle Replacement", "Irrigation System Maintenance", "Farm Liability Insurance", "Agricultural Building Repair"].map(option => (
-                                                <option key={option} value={option}>{option}</option>
-                                            ))}
-                                            {key === "farmerType" && ["Small", "Semi-Medium", "Medium", "Large"].map(option => (
-                                                <option key={option} value={option}>{option}</option>
-                                            ))}
-                                            {key === "state" && ["Bihar", "Odisha", "Mizoram", "Andhra Pradesh", "Kerala", "Manipur", "Punjab"].map(option => (
-                                                <option key={option} value={option}>{option}</option>
-                                            ))}
-                                            {key === "causeOfLoss" && ["Drought", "Flood", "Frost", "Hailstorm", "Windstorm", "Excessive Heat", "Excessive Rainfall"].map(option => (
-                                                <option key={option} value={option}>{option}</option>
-                                            ))}
+                                            {key === "claimType" &&
+                                                [
+                                                    "Farm Vehicle Replacement",
+                                                    "Irrigation System Maintenance",
+                                                    "Farm Liability Insurance",
+                                                    "Agricultural Building Repair",
+                                                ].map((option) => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            {key === "farmerType" &&
+                                                ["Small", "Semi-Medium", "Medium", "Large"].map((option) => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            {key === "state" &&
+                                                Object.keys(districtOptions).map((option) => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            {key === "causeOfLoss" &&
+                                                [
+                                                    "Drought",
+                                                    "Flood",
+                                                    "Frost",
+                                                    "Hailstorm",
+                                                    "Windstorm",
+                                                    "Excessive Heat",
+                                                    "Excessive Rainfall",
+                                                ].map((option) => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            {key === "district" &&
+                                                formData.state &&
+                                                districtOptions[formData.state].map((option) => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
                                         </select>
+                                    ) : key === "sowingDate" ? (
+                                        <DatePicker
+                                            onChange={handleDateChange}
+                                            className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key]
+                                                    ? "border-red-400 shadow-red-100"
+                                                    : "border-emerald-200"
+                                                } bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                                            placeholder="Select date of sowing"
+                                        />
                                     ) : (
                                         <input
                                             type="text"
@@ -273,7 +371,10 @@ const Complain = () => {
                                             value={formData[key]}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? 'border-red-400 shadow-red-100' : 'border-emerald-200'} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                                            className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key]
+                                                    ? "border-red-400 shadow-red-100"
+                                                    : "border-emerald-200"
+                                                } bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
                                             placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
                                         />
                                     )}
@@ -304,8 +405,16 @@ const Complain = () => {
             {/* Success Message */}
             {showSuccess && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full shadow-2xl animate-bounceIn flex items-center z-50">
-                    <svg className="w-7 h-7 mr-3 animate-spinSlow" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                        className="w-7 h-7 mr-3 animate-spinSlow"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                        />
                     </svg>
                     <span className="text-lg font-semibold">Claim Submitted Successfully!</span>
                 </div>
