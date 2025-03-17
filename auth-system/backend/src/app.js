@@ -122,7 +122,7 @@ async function fetchFormDatas() {
     try {
         await client.connect();
         const db = client.db(); 
-        const collection = db.collection("formdatas");
+        const collection = db.collection("complaints");
         return await collection.find({}).toArray();
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -130,7 +130,7 @@ async function fetchFormDatas() {
     }
 }
 
-app.get("/api/formdatas", async (req, res) => {
+app.get("/api/complaints", async (req, res) => {
     const data = await fetchFormDatas();
     res.json(data);
 });
@@ -142,7 +142,32 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Internal Server Error', error: err.message });
 });
 
-  
+app.put("/api/complaints/:id/status", async (req, res) => {
+    const { status } = req.body;
+
+    if (!["Pending", "Approved", "Rejected"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+    }
+
+    try {
+        const updatedComplaint = await ComplainData.findByIdAndUpdate(
+            req.params.id,
+            { $set: { status } },
+            { new: true }
+        );
+
+        if (!updatedComplaint) {
+            return res.status(404).json({ message: "Complaint not found" });
+        }
+
+        console.log("✅ Complaint updated successfully:", updatedComplaint);
+        res.json({ message: "Status updated successfully", complaint: updatedComplaint });
+    } catch (error) {
+        console.error("❌ Error updating status:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+ 
 
 // Export the app object (if needed for testing or modular use)
 module.exports = app;

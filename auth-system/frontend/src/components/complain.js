@@ -19,7 +19,7 @@ const Complain = () => {
         areaImpacted: "",
         causeOfLoss: "",
         aadhaar: "",
-        sowingDate: "",
+        dateOfSowing: "",
     });
 
     const [errors, setErrors] = useState({});
@@ -110,7 +110,7 @@ const Complain = () => {
             if (!/^\d+$/.test(value)) return "Aadhaar number must contain only digits";
             return "";
         },
-        sowingDate: (value) => (value ? "" : "Date of sowing is required"),
+        dateOfSowing: (value) => (value ? "" : "Date of sowing is required"),
     };
 
     const validateField = (name, value) => {
@@ -187,12 +187,12 @@ const Complain = () => {
     };
 
     const handleDateChange = (date, dateString) => {
-        setFormData((prev) => ({ ...prev, sowingDate: dateString }));
-        setTouchedFields((prev) => ({ ...prev, sowingDate: true }));
-        const error = validateField("sowingDate", dateString);
+        setFormData((prev) => ({ ...prev, dateOfSowing: dateString }));
+        setTouchedFields((prev) => ({ ...prev, dateOfSowing: true }));
+        const error = validateField("dateOfSowing", dateString);
         setErrors((prev) => ({
             ...prev,
-            sowingDate: error,
+            dateOfSowing: error,
         }));
     };
 
@@ -243,7 +243,7 @@ const Complain = () => {
                 areaImpacted: "",
                 causeOfLoss: "",
                 aadhaar: "",
-                sowingDate: "",
+                dateOfSowing: "",
             });
 
             setErrors({});
@@ -256,7 +256,7 @@ const Complain = () => {
 
     const formSections = {
         "Personal Details": ["name", "phone", "address", "pincode", "aadhaar"],
-        "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss", "sowingDate"],
+        "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss", "dateOfSowing"],
         "Claim Details": ["claimType", "amount", "state", "district"],
         "Bank Details": ["bankName", "bankBranch", "accountNumber"],
     };
@@ -354,7 +354,7 @@ const Complain = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    ) : key === "sowingDate" ? (
+                                    ) : key === "dateOfSowing" ? (
                                         <DatePicker
                                             onChange={handleDateChange}
                                             className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key]

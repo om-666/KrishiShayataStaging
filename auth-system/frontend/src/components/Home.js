@@ -72,7 +72,7 @@ const FeatureCard = () => {
           <Card
             title="Admin Login"
             imageSrc="/assets/admin-login.png"
-            href="http://localhost:3000/admin/login"
+            href="http://localhost:3000/admin/"
           />
           <Card
             title="Insurance Premium Calculator"
