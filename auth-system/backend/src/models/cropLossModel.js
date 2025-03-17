@@ -17,7 +17,7 @@ const complaintSchema = new mongoose.Schema({
     causeOfLoss: { type: String, required: true },
     aadhaar: { type: String, required: true, match: /^\d{12}$/ },
     dateOfSowing: { type: String, required: true },
-    status: { type: String, default: "Pending", enum: ["Pending", "Approved", "Rejected"] },
+    status: { type: String, default: "Pending", enum: ["Pending ", "Approved", "Rejected"] },
     createdAt: { type: Date, default: Date.now }
 });
 

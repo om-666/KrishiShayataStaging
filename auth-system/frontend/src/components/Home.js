@@ -70,7 +70,7 @@ const FeatureCard = () => {
             href="https://om-666.github.io/BOT/"
           />
           <Card
-            title="Admin Login"
+            title="Admin Login "
             imageSrc="/assets/admin-login.png"
             href="http://localhost:3000/admin/"
           />

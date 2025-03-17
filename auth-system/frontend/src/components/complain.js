@@ -224,7 +224,7 @@ const Complain = () => {
 
         try {
             const response = await axios.post("http://localhost:5000/api/complain", formData);
-            messageApi.success(response.data.message || "Complaint submitted successfully!");
+            messageApi.success(response.data.message || "Complaint submitted  successfully!");
             setShowSuccess(true);
 
             setFormData({

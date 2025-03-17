@@ -146,7 +146,7 @@ app.put("/api/complaints/:id/status", async (req, res) => {
     const { status } = req.body;
 
     if (!["Pending", "Approved", "Rejected"].includes(status)) {
-        return res.status(400).json({ message: "Invalid status" });
+        return res.status(400).json({ message: "Invalid status " });
     }
 
     try {

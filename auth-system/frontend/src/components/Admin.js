@@ -20,7 +20,7 @@ const Admin = () => {
                 setStatusMap(initialStatusMap);
                 setFormData(data);
             })
-            .catch((error) => console.error("Error fetching data:", error));
+            .catch((error) => console.error("Error fetching data :", error));
     }, []);
 
     // Function to calculate the average of an array
