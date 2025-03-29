@@ -5,8 +5,23 @@ import { User, Phone, Mail, MapPin, CreditCard, LogOut } from 'lucide-react';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
+  const [translations, setTranslations] = useState({});
+  const [loadingTranslations, setLoadingTranslations] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState(localStorage.getItem("selectedLanguage") || "en");
   const navigate = useNavigate();
 
+  // Texts to translate
+  const textsToTranslate = [
+    "Welcome to your personalized dashboard",
+    "Personal Information",
+    "Phone Number",
+    "Aadhar Number",
+    "Contact Details",
+    "Email Address",
+    "Address",
+  ];
+
+  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       const aadhar = localStorage.getItem('userAadhar');
@@ -25,15 +40,70 @@ function Dashboard() {
     fetchUserData();
   }, [navigate]);
 
+  // Fetch translations on language change
+  useEffect(() => {
+    const fetchTranslations = async () => {
+      console.log("Fetching translations for language:", selectedLanguage);
+      setLoadingTranslations(true);
+
+      const translationPromises = textsToTranslate.map(async (text) => {
+        try {
+          const response = await axios.post("http://localhost:5000/api/translate", {
+            en: text,
+            langCode: selectedLanguage,
+          });
+          console.log(`Response for ${text}:`, response.data);
+          return { [text]: response.data.translation };
+        } catch (error) {
+          console.error(`Error fetching translation for ${text}:`, error.message);
+          return { [text]: text }; // Fallback to original text
+        }
+      });
+
+      try {
+        const results = await Promise.all(translationPromises);
+        const translationMap = Object.assign({}, ...results);
+        console.log("Translation map:", translationMap);
+        setTranslations(translationMap);
+      } catch (error) {
+        console.error("Unexpected error in Promise.all:", error);
+        const fallbackTranslations = {};
+        textsToTranslate.forEach((text) => {
+          fallbackTranslations[text] = text;
+        });
+        setTranslations(fallbackTranslations);
+      } finally {
+        setLoadingTranslations(false);
+      }
+    };
+
+    fetchTranslations();
+
+    // Listen for language changes from Navbar
+    const handleStorageChange = (e) => {
+      if (e.key === "selectedLanguage") {
+        setSelectedLanguage(e.newValue || "en");
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [selectedLanguage]);
+
+  const getTranslatedText = (englishText) => {
+    return translations[englishText] || englishText;
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('userAadhar');
     navigate('/login');
   };
 
+  if (loadingTranslations) {
+    return <div>Loading translations...</div>;
+  }
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-emerald-900 to-teal-900 overflow-hidden">
-      {/* Header */}
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-6">
         {/* Profile Header */}
@@ -51,7 +121,7 @@ function Dashboard() {
             </div>
             <div className="text-center md:text-left animate-fadeInUp">
               <h1 className="text-4xl font-bold text-white mb-2">{user?.fullName || 'User'}</h1>
-              <p className="text-emerald-300 text-lg">Welcome to your personalized dashboard</p>
+              <p className="text-emerald-300 text-lg">{getTranslatedText("Welcome to your personalized dashboard")}</p>
             </div>
           </div>
         </div>
@@ -62,21 +132,21 @@ function Dashboard() {
             <div className="border-b border-emerald-500/20 pb-4 mb-4 group-hover:border-emerald-500/40 transition-colors">
               <div className="flex items-center gap-3">
                 <User className="h-6 w-6 text-emerald-400 animate-bounceIn" />
-                <h2 className="text-2xl font-semibold text-white">Personal Information</h2>
+                <h2 className="text-2xl font-semibold text-white">{getTranslatedText("Personal Information")}</h2>
               </div>
             </div>
             <div className="space-y-6">
               <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '200ms' }}>
                 <Phone className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-300/80">Phone Number</p>
+                  <p className="text-sm text-emerald-300/80">{getTranslatedText("Phone Number")}</p>
                   <p className="font-medium text-white text-lg">{user?.phone || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '300ms' }}>
                 <CreditCard className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-300/80">Aadhar Number</p>
+                  <p className="text-sm text-emerald-300/80">{getTranslatedText("Aadhar Number")}</p>
                   <p className="font-medium text-white text-lg">
                     {user?.aadhar?.replace(/\d{4}(?=\d)/g, '$& ') || 'N/A'}
                   </p>
@@ -89,21 +159,21 @@ function Dashboard() {
             <div className="border-b border-emerald-500/20 pb-4 mb-4 group-hover:border-emerald-500/40 transition-colors">
               <div className="flex items-center gap-3">
                 <Mail className="h-6 w-6 text-emerald-400 animate-bounceIn" />
-                <h2 className="text-2xl font-semibold text-white">Contact Details</h2>
+                <h2 className="text-2xl font-semibold text-white">{getTranslatedText("Contact Details")}</h2>
               </div>
             </div>
             <div className="space-y-6">
               <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '400ms' }}>
                 <Mail className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-300/80">Email Address</p>
+                  <p className="text-sm text-emerald-300/80">{getTranslatedText("Email Address")}</p>
                   <p className="font-medium text-white text-lg">{user?.email || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 p-4 bg-emerald-900/30 rounded-lg hover:bg-emerald-900/50 transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn" style={{ animationDelay: '500ms' }}>
                 <MapPin className="h-6 w-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="text-sm text-emerald-300/80">Address</p>
+                  <p className="text-sm text-emerald-300/80">{getTranslatedText("Address")}</p>
                   <p className="font-medium text-white text-lg">{user?.address || 'N/A'}</p>
                 </div>
               </div>

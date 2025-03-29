@@ -1,35 +1,38 @@
+// src/app.js
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { MongoClient } = require("mongodb");
+const { MongoClient } = require('mongodb');
 
-const connectDB = require('./config/dbConfig'); // DB connection
-const authRoutes = require('./routes/authRoutes'); // Auth routes
-const User = require('./models/userModel'); // User Model
-const FormData = require('./models/formDataModel'); // Form Data Model
+const connectDB = require('./config/dbConfig');
+const authRoutes = require('./routes/authRoutes');
+const User = require('./models/userModel');
+const FormData = require('./models/formDataModel');
 const ComplainData = require('./models/cropLossModel');
+const TextData = require('./models/textDataModel');
+const axios = require('axios');  
 
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS to allow frontend requests
-app.use(bodyParser.json()); // Parses JSON requests (equivalent to express.json())
-app.use(express.json()); // Ensure JSON parsing is enabled (redundant with bodyParser, but kept for clarity)
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.json());
 
 // Connect to MongoDB
 connectDB()
     .then(() => console.log("✅ MongoDB Connected Successfully"))
     .catch((err) => {
         console.error("❌ MongoDB Connection Error:", err);
-        process.exit(1); // Exit process if DB connection fails
+        process.exit(1);
     });
 
 // Initialize Razorpay with your API keys
 const razorpay = new Razorpay({
-    key_id: "rzp_test_Y6001oiMAxB4vr", // Replace with your Razorpay key_id
-    key_secret: "MaPjnSuThRYUVsbYNEbZp1Yy", // Replace with your Razorpay key_secret
+    key_id: "rzp_test_Y6001oiMAxB4vr",
+    key_secret: "MaPjnSuThRYUVsbYNEbZp1Yy",
 });
 
 // Auth Routes
@@ -70,63 +73,182 @@ app.post("/api/complain", async (req, res) => {
         await complaint.save();
         res.status(200).json({ message: "Complaint submitted successfully!", complaint });
     } catch (error) {
+        console.error("Error saving complaint:", error);
         res.status(400).json({ error: error.message });
     }
 });
 
-// New endpoint to create Razorpay order
-app.post("/api/create-order", async (req, res) => {
-    const { amount } = req.body; // Amount in INR (sent from frontend)
-
+app.post('/api/translate', async (req, res) => {
     try {
-        const options = {
-            amount: amount * 100, // Amount in paise (Razorpay expects amount in smallest currency unit)
-            currency: "INR",
-            receipt: `receipt_${Date.now()}`,
-        };
+        const { en, langCode } = req.body;
 
-        const order = await razorpay.orders.create(options);
-        res.json({
-            orderId: order.id,
-            amount: order.amount,
-            currency: order.currency,
-            key: "YOUR_RAZORPAY_KEY_ID", // Send key_id to frontend
+        // Validation
+        if (!en || typeof en !== 'string') {
+            return res.status(400).json({ message: "❌ English text (en) is required and must be a string" });
+        }
+        if (!langCode || typeof langCode !== 'string') {
+            return res.status(400).json({ message: "❌ Language code (langCode) is required and must be a string" });
+        }
+
+        // Supported language codes
+        const validLangCodes = ['en', 'hi', 'as', 'bn', 'gu', 'kn', 'ml', 'mr', 'or', 'pa', 'ta', 'te'];
+        if (!validLangCodes.includes(langCode)) {
+            return res.status(400).json({ message: "❌ Invalid language code. Supported codes: " + validLangCodes.join(', ') });
+        }
+
+        // Find the text in the database
+        const textData = await TextData.findOne({ en });
+        
+        if (!textData) {
+            return res.status(404).json({ message: "❌ Text not found in database" });
+        }
+
+        // Get the translation for the specified language code, fallback to English if not available
+        const translation = textData[langCode] || textData.en;
+
+        res.status(200).json({
+            message: "✅ Translation fetched successfully",
+            en: textData.en,
+            langCode,
+            translation,
+            _id: textData._id,
+            timestamp: textData.timestamp
         });
     } catch (error) {
-        console.error("Error creating Razorpay order:", error);
-        res.status(500).json({ error: "Failed to create order" });
+        console.error("Error translating text:", error);
+        res.status(500).json({ 
+            message: "❌ Error translating text", 
+            error: error.message 
+        });
+    }
+});
+ 
+
+// Save Text Data with Translations
+app.post('/api/save-text', async (req, res) => {
+    try {
+        const { originalText, timestamp } = req.body;
+
+        // Validation
+        if (typeof originalText !== 'string') {
+            return res.status(400).json({ message: "❌ originalText must be a string" });
+        }
+        if (!originalText) {
+            return res.status(400).json({ message: "❌ Text cannot be empty" });
+        }
+
+        const srcLang = 'en';
+        const targetLanguages = ['en', 'hi', 'as', 'bn', 'gu', 'kn', 'ml', 'mr', 'or', 'pa', 'ta', 'te'];
+
+        // Check if the text already exists
+        const existingText = await TextData.findOne({ en: originalText });
+        if (existingText) {
+            const response = {
+                message: 'Text already exists',
+                id: existingText._id,
+                en: existingText.en,
+                timestamp: existingText.timestamp
+            };
+            targetLanguages.forEach(lang => {
+                if (existingText[lang]) response[lang] = existingText[lang];
+            });
+            return res.status(200).json(response);
+        }
+
+        const reverieApiUrl = 'https://revapi.reverieinc.com/';
+        const apiKey = '<YOUR API-KEY>'; // Replace with your actual API key
+        const appId = '<YOUR APP-ID>';   // Replace with your actual App ID
+
+        let textDataPayload = {
+            en: originalText,
+            timestamp: timestamp || new Date().toISOString()
+        };
+
+        // Loop through target languages
+        for (const tgtLang of targetLanguages) {
+            if (tgtLang === 'en') continue;
+
+            try {
+                const response = await axios.post(reverieApiUrl, {
+                    data: [originalText],
+                    nmtMask: true,
+                    nmtMaskTerms: {},
+                    enableNmt: true,
+                    enableLookup: true
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'REV-API-KEY': apiKey,
+                        'REV-APP-ID': appId,
+                        'src_lang': srcLang,
+                        'tgt_lang': tgtLang,
+                        'domain': 'generic',
+                        'REV-APPNAME': 'localization',
+                        'REV-APPVERSION': '3.0'
+                    }
+                });
+
+                console.log(`Translation response for ${tgtLang}:`, response.data);
+                // Extract the translated text from responseList[0].outString
+                const translatedText = response.data.responseList[0].outString;
+                textDataPayload[tgtLang] = translatedText;
+            } catch (translationError) {
+                console.error(`Translation to ${tgtLang} failed:`, translationError.response?.data || translationError.message);
+                textDataPayload[tgtLang] = originalText.split('').reverse().join(''); // Fallback
+            }
+        }
+
+        // Save the text data
+        const textData = new TextData(textDataPayload);
+        await textData.save();
+
+        const response = {
+            message: 'Text saved successfully with translations',
+            id: textData._id,
+            en: textData.en,
+            timestamp: textData.timestamp
+        };
+        targetLanguages.forEach(lang => {
+            if (textData[lang]) response[lang] = textData[lang];
+        });
+
+        res.status(201).json(response);
+
+    } catch (error) {
+        console.error("Error saving text data:", error);
+        res.status(500).json({ message: "❌ Error saving text data", error: error.message });
     }
 });
 
-// Optional: Verify payment (after payment is completed)
-app.post("/api/verify-payment", (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-    const generatedSignature = crypto
-        .createHmac("sha256", "YOUR_RAZORPAY_KEY_SECRET")
-        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-        .digest("hex");
-
-    if (generatedSignature === razorpay_signature) {
-        res.status(200).json({ status: "success", message: "Payment verified" });
-    } else {
-        res.status(400).json({ status: "failure", message: "Payment verification failed" });
+// Endpoint to fetch all stored text
+app.get('/api/texts', async (req, res) => {
+    try {
+        const texts = await TextData.find({});
+        res.status(200).json(texts);
+    } catch (error) {
+        console.error("Error fetching texts:", error);
+        res.status(500).json({ 
+            message: "❌ Error fetching texts", 
+            error: error.message 
+        });
     }
 });
-app.use(cors()); // Allow requests from frontend
 
+// MongoDB Atlas connection for formdatas (separate client, optional)
 const uri = "mongodb+srv://souravmishra7456:wZgCzCsJJQ22Bnc8@cluster0.5j0ia.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(uri);
 
 async function fetchFormDatas() {
     try {
         await client.connect();
-        const db = client.db(); 
+        const db = client.db(); // Uses default database from URI
         const collection = db.collection("formdatas");
         return await collection.find({}).toArray();
     } catch (error) {
         console.error("Error fetching data:", error);
         return [];
+    } finally {
+        await client.close();
     }
 }
 
@@ -135,14 +257,11 @@ app.get("/api/formdatas", async (req, res) => {
     res.json(data);
 });
 
-
 // Error Handler Middleware
 app.use((err, req, res, next) => {
     console.error("Server Error:", err.stack);
     res.status(500).json({ message: 'Internal Server Error', error: err.message });
 });
 
-  
-
-// Export the app object (if needed for testing or modular use)
+ 
 module.exports = app;
