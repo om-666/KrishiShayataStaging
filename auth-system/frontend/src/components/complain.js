@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { message } from "antd";
+import { message, DatePicker } from "antd";
 import axios from "axios";
 
 const Complain = () => {
@@ -19,6 +19,7 @@ const Complain = () => {
     areaImpacted: "",
     causeOfLoss: "",
     aadhaar: "",
+    sowingDate: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -58,6 +59,7 @@ const Complain = () => {
     "Select Farmer Type",
     "Select State",
     "Select Cause Of Loss",
+    "Select District",
     "Enter name",
     "Enter phone",
     "Enter address",
@@ -101,7 +103,49 @@ const Complain = () => {
     "Please fix all errors before submitting",
     "Complaint submitted successfully!",
     "Failed to submit complaint",
+    "Date of sowing",
+    "Date of sowing is required",
+    "Enter date of sowing",
   ];
+
+  const districtOptions = {
+    "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool"],
+    "Arunachal Pradesh": ["Itanagar", "Tawang", "Pasighat", "Ziro", "Bomdila"],
+    "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon"],
+    "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Darbhanga"],
+    "Chhattisgarh": ["Raipur", "Bilaspur", "Durg", "Korba", "Raigarh"],
+    "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda"],
+    "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"],
+    "Haryana": ["Faridabad", "Gurugram", "Hisar", "Rohtak", "Panipat"],
+    "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Solan", "Kullu"],
+    "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar"],
+    "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubli", "Belagavi"],
+    "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam"],
+    "Madhya Pradesh": ["Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain"],
+    "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
+    "Manipur": ["Imphal", "Churachandpur", "Thoubal", "Bishnupur", "Ukhrul"],
+    "Meghalaya": ["Shillong", "Tura", "Jowai", "Nongstoin", "Williamnagar"],
+    "Mizoram": ["Aizawl", "Lunglei", "Champhai", "Saiha", "Kolasib"],
+    "Nagaland": ["Kohima", "Dimapur", "Mokokchung", "Tuensang", "Wokha"],
+    "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Puri", "Sambalpur"],
+    "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda"],
+    "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
+    "Sikkim": ["Gangtok", "Namchi", "Gyalshing", "Mangan", "Pelling"],
+    "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli"],
+    "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam"],
+    "Tripura": ["Agartala", "Udaipur", "Kailashahar", "Dharmanagar", "Belonia"],
+    "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Meerut"],
+    "Uttarakhand": ["Dehradun", "Haridwar", "Nainital", "Rishikesh", "Roorkee"],
+    "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Siliguri", "Asansol"],
+    "Andaman and Nicobar Islands": ["Port Blair", "Havelock", "Neil Island", "Diglipur", "Mayabunder"],
+    "Chandigarh": ["Chandigarh"],
+    "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Diu", "Silvassa"],
+    "Delhi": ["New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"],
+    "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla", "Kathua"],
+    "Ladakh": ["Leh", "Kargil"],
+    "Lakshadweep": ["Kavaratti", "Minicoy", "Agatti", "Andrott", "Kalpeni"],
+    "Puducherry": ["Puducherry", "Karaikal", "Mahe", "Yanam"],
+  };
 
   const validationRules = {
     phone: (value) => {
@@ -147,6 +191,7 @@ const Complain = () => {
       if (!/^\d+$/.test(value)) return getTranslatedText("Aadhaar number must contain only digits");
       return "";
     },
+    sowingDate: (value) => (value ? "" : getTranslatedText("Date of sowing is required")),
   };
 
   // Fetch translations on language change
@@ -161,7 +206,6 @@ const Complain = () => {
             en: text,
             langCode: selectedLanguage,
           });
-          console.log(`Response for ${text}:`, response.data);
           return { [text]: response.data.translation };
         } catch (error) {
           console.error(`Error fetching translation for ${text}:`, error.message);
@@ -172,7 +216,6 @@ const Complain = () => {
       try {
         const results = await Promise.all(translationPromises);
         const translationMap = Object.assign({}, ...results);
-        console.log("Translation map:", translationMap);
         setTranslations(translationMap);
       } catch (error) {
         console.error("Unexpected error in Promise.all:", error);
@@ -188,7 +231,6 @@ const Complain = () => {
 
     fetchTranslations();
 
-    // Listen for language changes from Navbar
     const handleStorageChange = (e) => {
       if (e.key === "selectedLanguage") {
         setSelectedLanguage(e.newValue || "en");
@@ -252,6 +294,11 @@ const Complain = () => {
         messageApi.warning(getTranslatedText("Aadhaar number must contain only digits"));
         return;
       }
+    } else if (name === "state") {
+      // Reset district when state changes
+      setFormData((prev) => ({ ...prev, state: value, district: "" }));
+      setErrors((prev) => ({ ...prev, district: getTranslatedText("District is required") }));
+      return;
     }
 
     setFormData((prev) => ({ ...prev, [name]: newValue }));
@@ -267,6 +314,16 @@ const Complain = () => {
     setErrors((prev) => ({
       ...prev,
       [name]: error,
+    }));
+  };
+
+  const handleDateChange = (date, dateString) => {
+    setFormData((prev) => ({ ...prev, sowingDate: dateString }));
+    setTouchedFields((prev) => ({ ...prev, sowingDate: true }));
+    const error = validateField("sowingDate", dateString);
+    setErrors((prev) => ({
+      ...prev,
+      sowingDate: error,
     }));
   };
 
@@ -299,7 +356,6 @@ const Complain = () => {
       messageApi.success(response.data.message || getTranslatedText("Complaint submitted successfully!"));
       setShowSuccess(true);
 
-      // Reset form
       setFormData({
         name: "",
         claimType: "",
@@ -316,6 +372,7 @@ const Complain = () => {
         areaImpacted: "",
         causeOfLoss: "",
         aadhaar: "",
+        sowingDate: "",
       });
 
       setErrors({});
@@ -328,7 +385,7 @@ const Complain = () => {
 
   const formSections = {
     "Personal Details": ["name", "phone", "address", "pincode", "aadhaar"],
-    "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss"],
+    "Farm Information": ["farmerType", "areaImpacted", "causeOfLoss", "sowingDate"],
     "Claim Details": ["claimType", "amount", "state", "district"],
     "Bank Details": ["bankName", "bankBranch", "accountNumber"],
   };
@@ -340,7 +397,6 @@ const Complain = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
       {contextHolder}
-      {/* Header */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-700 to-teal-800 p-8 sticky top-0 z-20 shadow-lg">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-mosaic.png')] opacity-10 animate-pulse-slow"></div>
         <div className="max-w-7xl mx-auto">
@@ -353,7 +409,6 @@ const Complain = () => {
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-6 md:p-8">
         {Object.entries(formSections).map(([section, fields], index) => (
           <div key={section} className="mb-12 animate-fadeIn" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -366,7 +421,7 @@ const Complain = () => {
                   <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
                     {getTranslatedText(key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()))}
                   </label>
-                  {["claimType", "farmerType", "state", "causeOfLoss"].includes(key) ? (
+                  {["claimType", "farmerType", "state", "causeOfLoss", "district"].includes(key) ? (
                     <select
                       name={key}
                       required
@@ -391,7 +446,7 @@ const Complain = () => {
                           </option>
                         ))}
                       {key === "state" &&
-                        ["Bihar", "Odisha", "Mizoram", "Andhra Pradesh", "Kerala", "Manipur", "Punjab"].map((option) => (
+                        Object.keys(districtOptions).map((option) => (
                           <option key={option} value={option}>
                             {option}
                           </option>
@@ -402,7 +457,20 @@ const Complain = () => {
                             {option}
                           </option>
                         ))}
+                      {key === "district" &&
+                        formData.state &&
+                        districtOptions[formData.state].map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
                     </select>
+                  ) : key === "sowingDate" ? (
+                    <DatePicker
+                      onChange={handleDateChange}
+                      className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                      placeholder={getTranslatedText("Enter date of sowing")}
+                    />
                   ) : (
                     <input
                       type="text"
@@ -424,7 +492,6 @@ const Complain = () => {
           </div>
         ))}
 
-        {/* Submit Button */}
         <div className="flex justify-center py-12">
           <button
             type="submit"
@@ -437,7 +504,6 @@ const Complain = () => {
         </div>
       </form>
 
-      {/* Success Message */}
       {showSuccess && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full shadow-2xl animate-bounceIn flex items-center z-50">
           <svg className="w-7 h-7 mr-3 animate-spinSlow" fill="currentColor" viewBox="0 0 20 20">
@@ -447,7 +513,6 @@ const Complain = () => {
         </div>
       )}
 
-      {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
