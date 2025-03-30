@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { message, DatePicker } from "antd";
 import axios from "axios";
+import Footer from "./Footer";
+import QuickAnimatedLoader from "./CustomLoader";
 
 // Function to load Razorpay script dynamically with delay
 const loadRazorpayScript = () => {
@@ -570,230 +572,233 @@ const ApplyInsuranceForm = () => {
   };
 
   if (loadingTranslations) {
-    return <div>Loading translations...</div>;
+    <QuickAnimatedLoader />
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
-      {contextHolder}
+    <>
+      <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
+        {contextHolder}
 
-     
 
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 via-emerald-700 to-teal-800 p-8 sticky top-0 z-20 shadow-lg">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-mosaic.png')] opacity-10 animate-pulse-slow"></div>
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-extrabold text-center text-white mb-3 animate-slideDown tracking-tight">
-            {getTranslatedText("Apply for Crop Insurance")}
-          </h2>
-          <p className="text-center text-green-100 text-lg md:text-xl animate-fadeInUp">
-            {isSubmitted
-              ? getTranslatedText("Review your insurance details below")
-              : getTranslatedText("Submit your application with detailed information below")}
-          </p>
-        </div>
-      </div>
 
-      {/* Conditional Rendering: Form or Premium Details */}
-      {!isSubmitted ? (
-        <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-6 md:p-8">
-          {Object.entries(formSections).map(([section, fields], index) => (
-            <div key={section} className="mb-12 animate-fadeIn" style={{ animationDelay: `${index * 0.1}s` }}>
-              <h3 className="text-3xl font-bold text-gray-800 mb-6 pb-3 border-b-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1 hover:shadow-md">
-                {getTranslatedText(section)}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {fields.map((key) => (
-                  <div key={key} className="relative group">
-                    <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
-                      {getTranslatedText(
-                        key === "areaSown" ? "Area Sown (in hectares)" : key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
-                      )}
-                    </label>
-                    {key === "state" ? (
-                      <select
-                        name={key}
-                        value={formData.state}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
-                      >
-                        <option value="">{getTranslatedText("Select a state")}</option>
-                        {Object.keys(districtOptions).sort().map((stateName) => (
-                          <option key={stateName} value={stateName}>{stateName}</option>
-                        ))}
-                      </select>
-                    ) : key === "district" ? (
-                      <select
-                        name={key}
-                        value={formData.district}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        disabled={!formData.state}
-                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
-                      >
-                        <option value="">{getTranslatedText("Select a district")}</option>
-                        {formData.state &&
-                          districtOptions[formData.state]?.map((districtName) => (
-                            <option key={districtName} value={districtName}>{districtName}</option>
-                          ))}
-                      </select>
-                    ) : key === "crop" ? (
-                      <select
-                        name={key}
-                        value={formData.crop}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
-                      >
-                        <option value="">{getTranslatedText("Select a crop")}</option>
-                        {insuranceParams.map((param) => (
-                          <option key={param.crop} value={param.crop}>{param.crop}</option>
-                        ))}
-                      </select>
-                    ) : key === "season" ? (
-                      <input
-                        type="text"
-                        name={key}
-                        value={formData.season}
-                        readOnly
-                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-gray-100/80 backdrop-blur-sm shadow-md transition-all duration-300`}
-                      />
-                    ) : key === "dateOfSowing" ? (
-                      <DatePicker
-                        onChange={handleDateChange}
-                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
-                        placeholder={getTranslatedText("Select date of sowing")}
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        name={key}
-                        required
-                        value={formData[key]}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
-                        placeholder={
-                          key === "areaSown"
-                            ? getTranslatedText("Enter area sown (in hectares)")
-                            : getTranslatedText(`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`)
-                        }
-                      />
-                    )}
-                    {touchedFields[key] && errors[key] && (
-                      <p className="absolute -bottom-6 left-2 text-sm text-red-500 animate-bounceIn font-medium">{errors[key]}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          {/* Submit Button */}
-          <div className="flex justify-center py-12">
-            <button
-              type="submit"
-              className="px-12 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-emerald-300 relative overflow-hidden group"
-            >
-              <span className="relative z-10">{getTranslatedText("Submit Application")}</span>
-              <span className="absolute inset-0 bg-green-800 opacity-0 group-hover:opacity-30 animate-scaleIn transition-opacity duration-300"></span>
-              <span className="absolute top-0 left-0 w-0 h-full bg-white/20 group-hover:w-full transition-all duration-500"></span>
-            </button>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-600 via-emerald-700 to-teal-800 p-8 sticky top-0 z-20 shadow-lg">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-mosaic.png')] opacity-10 animate-pulse-slow"></div>
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-5xl md:text-6xl font-extrabold text-center text-white mb-3 animate-slideDown tracking-tight">
+              {getTranslatedText("Apply for Crop Insurance")}
+            </h2>
+            <p className="text-center text-green-100 text-lg md:text-xl animate-fadeInUp">
+              {isSubmitted
+                ? getTranslatedText("Review your insurance details below")
+                : getTranslatedText("Submit your application with detailed information below")}
+            </p>
           </div>
-        </form>
-      ) : (
-        <div className="max-w-7xl mx-auto p-6 md:p-8 animate-fadeIn">
-          {premiumDetails && (
-            <div className="bg-white rounded-2xl shadow-2xl p-8 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 opacity-50"></div>
-              <h2 className="text-4xl font-extrabold text-emerald-800 mb-8 text-center relative z-10">
-                {getTranslatedText("Your Insurance Premium Details")}
-              </h2>
+        </div>
 
-              {/* Hero Section - Premium Paid by Farmer */}
-              <div className="relative z-10 mb-10">
-                <div className="bg-gradient-to-r from-emerald-600 to-teal-500 p-6 rounded-xl shadow-lg transform hover:scale-102 transition-all duration-300">
-                  <div className="text-center">
-                    <h3 className="text-white text-xl font-medium mb-2">{getTranslatedText("Your Premium Amount")}</h3>
-                    <div className="text-4xl font-bold text-white mb-1">
-                      {formatCurrency(premiumDetails.premiumPaidByFarmer)}
+        {/* Conditional Rendering: Form or Premium Details */}
+        {!isSubmitted ? (
+          <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-6 md:p-8">
+            {Object.entries(formSections).map(([section, fields], index) => (
+              <div key={section} className="mb-12 animate-fadeIn" style={{ animationDelay: `${index * 0.1}s` }}>
+                <h3 className="text-3xl font-bold text-gray-800 mb-6 pb-3 border-b-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1 hover:shadow-md">
+                  {getTranslatedText(section)}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {fields.map((key) => (
+                    <div key={key} className="relative group">
+                      <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
+                        {getTranslatedText(
+                          key === "areaSown" ? "Area Sown (in hectares)" : key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+                        )}
+                      </label>
+                      {key === "state" ? (
+                        <select
+                          name={key}
+                          value={formData.state}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
+                        >
+                          <option value="">{getTranslatedText("Select a state")}</option>
+                          {Object.keys(districtOptions).sort().map((stateName) => (
+                            <option key={stateName} value={stateName}>{stateName}</option>
+                          ))}
+                        </select>
+                      ) : key === "district" ? (
+                        <select
+                          name={key}
+                          value={formData.district}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          disabled={!formData.state}
+                          className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
+                        >
+                          <option value="">{getTranslatedText("Select a district")}</option>
+                          {formData.state &&
+                            districtOptions[formData.state]?.map((districtName) => (
+                              <option key={districtName} value={districtName}>{districtName}</option>
+                            ))}
+                        </select>
+                      ) : key === "crop" ? (
+                        <select
+                          name={key}
+                          value={formData.crop}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
+                        >
+                          <option value="">{getTranslatedText("Select a crop")}</option>
+                          {insuranceParams.map((param) => (
+                            <option key={param.crop} value={param.crop}>{param.crop}</option>
+                          ))}
+                        </select>
+                      ) : key === "season" ? (
+                        <input
+                          type="text"
+                          name={key}
+                          value={formData.season}
+                          readOnly
+                          className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-gray-100/80 backdrop-blur-sm shadow-md transition-all duration-300`}
+                        />
+                      ) : key === "dateOfSowing" ? (
+                        <DatePicker
+                          onChange={handleDateChange}
+                          className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                          placeholder={getTranslatedText("Select date of sowing")}
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          name={key}
+                          required
+                          value={formData[key]}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                          placeholder={
+                            key === "areaSown"
+                              ? getTranslatedText("Enter area sown (in hectares)")
+                              : getTranslatedText(`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`)
+                          }
+                        />
+                      )}
+                      {touchedFields[key] && errors[key] && (
+                        <p className="absolute -bottom-6 left-2 text-sm text-red-500 animate-bounceIn font-medium">{errors[key]}</p>
+                      )}
                     </div>
-                    <p className="text-emerald-100 text-sm">
-                      {getTranslatedText("Due by")}: {premiumDetails.cutOffDate}
-                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Submit Button */}
+            <div className="flex justify-center py-12">
+              <button
+                type="submit"
+                className="px-12 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-emerald-300 relative overflow-hidden group"
+              >
+                <span className="relative z-10">{getTranslatedText("Submit Application")}</span>
+                <span className="absolute inset-0 bg-green-800 opacity-0 group-hover:opacity-30 animate-scaleIn transition-opacity duration-300"></span>
+                <span className="absolute top-0 left-0 w-0 h-full bg-white/20 group-hover:w-full transition-all duration-500"></span>
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="max-w-7xl mx-auto p-6 md:p-8 animate-fadeIn">
+            {premiumDetails && (
+              <div className="bg-white rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 opacity-50"></div>
+                <h2 className="text-4xl font-extrabold text-emerald-800 mb-8 text-center relative z-10">
+                  {getTranslatedText("Your Insurance Premium Details")}
+                </h2>
+
+                {/* Hero Section - Premium Paid by Farmer */}
+                <div className="relative z-10 mb-10">
+                  <div className="bg-gradient-to-r from-emerald-600 to-teal-500 p-6 rounded-xl shadow-lg transform hover:scale-102 transition-all duration-300">
+                    <div className="text-center">
+                      <h3 className="text-white text-xl font-medium mb-2">{getTranslatedText("Your Premium Amount")}</h3>
+                      <div className="text-4xl font-bold text-white mb-1">
+                        {formatCurrency(premiumDetails.premiumPaidByFarmer)}
+                      </div>
+                      <p className="text-emerald-100 text-sm">
+                        {getTranslatedText("Due by")}: {premiumDetails.cutOffDate}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-                {/* Left Column */}
-                <div className="space-y-4">
-                  {[
-                    { label: "Insurance Company", value: premiumDetails.insuranceCompany },
-                    { label: "Crop", value: premiumDetails.crop },
-                    { label: "Season", value: premiumDetails.season },
-                    { label: "Area (Hectares)", value: premiumDetails.area },
-                    { label: "Sum Insured Per Hectare", value: formatCurrency(premiumDetails.sumInsuredPerHectare) },
-                    { label: "Total Sum Insured", value: formatCurrency(premiumDetails.totalSumInsured) },
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 bg-emerald-100/50 rounded-lg shadow-sm hover:bg-emerald-200/70 transition-all duration-300"
-                    >
-                      <span className="font-semibold text-gray-700">{getTranslatedText(item.label)}:</span>
-                      <span className="text-emerald-800 font-medium">{item.value}</span>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    {[
+                      { label: "Insurance Company", value: premiumDetails.insuranceCompany },
+                      { label: "Crop", value: premiumDetails.crop },
+                      { label: "Season", value: premiumDetails.season },
+                      { label: "Area (Hectares)", value: premiumDetails.area },
+                      { label: "Sum Insured Per Hectare", value: formatCurrency(premiumDetails.sumInsuredPerHectare) },
+                      { label: "Total Sum Insured", value: formatCurrency(premiumDetails.totalSumInsured) },
+                    ].map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-3 bg-emerald-100/50 rounded-lg shadow-sm hover:bg-emerald-200/70 transition-all duration-300"
+                      >
+                        <span className="font-semibold text-gray-700">{getTranslatedText(item.label)}:</span>
+                        <span className="text-emerald-800 font-medium">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    {[
+                      { label: "Farmer Share", value: `${premiumDetails.farmerShare}%` },
+                      { label: "Actuarial Rate", value: `${premiumDetails.actuarialRate}%` },
+                      { label: "Premium Paid by Government", value: formatCurrency(premiumDetails.premiumPaidByGovt) },
+                    ].map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-3 bg-emerald-100/50 rounded-lg shadow-sm hover:bg-emerald-200/70 transition-all duration-300"
+                      >
+                        <span className="font-semibold text-gray-700">{getTranslatedText(item.label)}:</span>
+                        <span className="text-emerald-800 font-medium">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                {/* Right Column */}
-                <div className="space-y-4">
-                  {[
-                    { label: "Farmer Share", value: `${premiumDetails.farmerShare}%` },
-                    { label: "Actuarial Rate", value: `${premiumDetails.actuarialRate}%` },
-                    { label: "Premium Paid by Government", value: formatCurrency(premiumDetails.premiumPaidByGovt) },
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 bg-emerald-100/50 rounded-lg shadow-sm hover:bg-emerald-200/70 transition-all duration-300"
-                    >
-                      <span className="font-semibold text-gray-700">{getTranslatedText(item.label)}:</span>
-                      <span className="text-emerald-800 font-medium">{item.value}</span>
-                    </div>
-                  ))}
+                {/* Pay Button */}
+                <div className="flex justify-center mt-10 relative z-10">
+                  <button
+                    onClick={handlePayment}
+                    className="px-10 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-teal-300 relative overflow-hidden group"
+                  >
+                    <span className="relative z-10">{getTranslatedText("Proceed To Pay")}</span>
+                    <span className="absolute inset-0 bg-teal-700 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></span>
+                  </button>
                 </div>
               </div>
-              {/* Pay Button */}
-              <div className="flex justify-center mt-10 relative z-10">
-                <button
-                  onClick={handlePayment}
-                  className="px-10 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-teal-300 relative overflow-hidden group"
-                >
-                  <span className="relative z-10">{getTranslatedText("Proceed To Pay")}</span>
-                  <span className="absolute inset-0 bg-teal-700 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
 
-      {/* Success Message */}
-      {showSuccess && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full shadow-2xl animate-bounceIn flex items-center z-50">
-          <svg className="w-7 h-7 mr-3 animate-spinSlow" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-          <span className="text-lg font-semibold">{getTranslatedText("Application Submitted Successfully!")}</span>
-        </div>
-      )}
+        {/* Success Message */}
+        {showSuccess && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full shadow-2xl animate-bounceIn flex items-center z-50">
+            <svg className="w-7 h-7 mr-3 animate-spinSlow" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-lg font-semibold">{getTranslatedText("Application Submitted Successfully!")}</span>
+          </div>
+        )}
 
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        {/* Decorative Background Elements */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 

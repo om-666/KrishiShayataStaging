@@ -1,6 +1,8 @@
 import { Calculator, Calendar, Sprout, Map, FileText, RotateCcw, AlertTriangle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
+import Footer from './Footer';
+import QuickAnimatedLoader from './CustomLoader';
 
 const Calculators = () => {
   const [state, setState] = useState('');
@@ -273,216 +275,219 @@ const Calculators = () => {
   };
 
   if (loadingTranslations) {
-    return <div>Loading translations...</div>;
+    <QuickAnimatedLoader />
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 py-6 px-6">
-          <div className="flex items-center justify-center gap-3">
-            <Calculator className="text-white" size={28} />
-            <h1 className="text-center text-white font-bold text-2xl">{getTranslatedText("Crop Insurance Premium Calculator")}</h1>
+    <>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 py-6 px-6">
+            <div className="flex items-center justify-center gap-3">
+              <Calculator className="text-white" size={28} />
+              <h1 className="text-center text-white font-bold text-2xl">{getTranslatedText("Crop Insurance Premium Calculator")}</h1>
+            </div>
+            <p className="text-center text-emerald-100 mt-2">{getTranslatedText("Estimate your premium costs and coverage details")}</p>
           </div>
-          <p className="text-center text-emerald-100 mt-2">{getTranslatedText("Estimate your premium costs and coverage details")}</p>
-        </div>
 
-        <div className="p-6">
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-              <AlertTriangle size={20} />
-              <p>{error}</p>
+          <div className="p-6">
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                <AlertTriangle size={20} />
+                <p>{error}</p>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-2">
+                <label htmlFor="state" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Map size={16} />
+                  {getTranslatedText("State")}
+                </label>
+                <select
+                  id="state"
+                  value={state}
+                  onChange={handleStateChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                >
+                  <option value="">{getTranslatedText("Select State")}</option>
+                  {Object.keys(districtOptions).sort().map((stateName) => (
+                    <option key={stateName} value={stateName}>{stateName}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="district" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Map size={16} />
+                  {getTranslatedText("District")}
+                </label>
+                <select
+                  id="district"
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all ${!state ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}`}
+                  disabled={!state}
+                >
+                  <option value="">{getTranslatedText("Select District")}</option>
+                  {state && districtOptions[state]?.map((districtName) => (
+                    <option key={districtName} value={districtName}>{districtName}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="crop" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Sprout size={16} />
+                  {getTranslatedText("Crop")}
+                </label>
+                <select
+                  id="crop"
+                  value={crop}
+                  onChange={(e) => setCrop(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                >
+                  <option value="">{getTranslatedText("Select Crop")}</option>
+                  {insuranceParams.sort((a, b) => a.crop.localeCompare(b.crop)).map((param) => (
+                    <option key={param.crop} value={param.crop}>{param.crop} ({param.season})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="area" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <FileText size={16} />
+                  {getTranslatedText("Area (hectares)")}
+                </label>
+                <input
+                  type="number"
+                  id="area"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  min="0.1"
+                  step="0.1"
+                  placeholder={getTranslatedText("Enter land area")}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={calculatePremium}
+                disabled={loading}
+                className={`flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-3 px-8 rounded-lg transition duration-300 shadow ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    <span>{getTranslatedText("Calculating...")}</span>
+                  </>
+                ) : (
+                  <>
+                    <Calculator size={18} />
+                    <span>{getTranslatedText("Calculate Premium")}</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={resetForm}
+                disabled={loading}
+                className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-8 rounded-lg transition duration-300"
+              >
+                <RotateCcw size={18} />
+                <span>{getTranslatedText("Reset")}</span>
+              </button>
+            </div>
+          </div>
+
+          {premiumDetails && (
+            <div className="p-6 bg-gray-50 border-t border-gray-200">
+              <h2 className="text-xl font-semibold text-emerald-800 mb-4 flex items-center gap-2">
+                <FileText size={20} />
+                {getTranslatedText("Premium Calculation Results")}
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+                  <h3 className="text-lg font-medium text-gray-700 mb-4">{getTranslatedText("Policy Details")}</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Insurance Company")}</span>
+                      <span className="font-medium">{premiumDetails.insuranceCompany}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Crop")}</span>
+                      <span className="font-medium">{premiumDetails.crop}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Season")}</span>
+                      <span className={`${getSeasonColor(premiumDetails.season)} text-xs font-medium px-2.5 py-0.5 rounded`}>
+                        {premiumDetails.season}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Cut-off Date")}</span>
+                      <span className="font-medium flex items-center gap-1">
+                        <Calendar size={14} />
+                        {premiumDetails.cutOffDate}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Area (Hectares)")}</span>
+                      <span className="font-medium">{premiumDetails.area}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+                  <h3 className="text-lg font-medium text-gray-700 mb-4">{getTranslatedText("Coverage Details")}</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Sum Insured Per Hectare")}</span>
+                      <span className="font-medium">{formatCurrency(premiumDetails.sumInsuredPerHectare)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Total Sum Insured")}</span>
+                      <span className="font-medium">{formatCurrency(premiumDetails.totalSumInsured)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Actuarial Rate")}</span>
+                      <span className="font-medium">{premiumDetails.actuarialRate}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{getTranslatedText("Farmer Share")}</span>
+                      <span className="font-medium">{premiumDetails.farmerShare}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+                <h3 className="text-lg font-medium text-gray-700 mb-4">{getTranslatedText("Premium Breakdown")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-emerald-50 p-4 rounded-lg">
+                    <p className="text-sm text-emerald-600 mb-1">{getTranslatedText("Farmer Premium")}</p>
+                    <p className="text-2xl font-bold text-emerald-800">{formatCurrency(premiumDetails.premiumPaidByFarmer)}</p>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-sm text-blue-600 mb-1">{getTranslatedText("Government Subsidy")}</p>
+                    <p className="text-2xl font-bold text-blue-800">{formatCurrency(premiumDetails.premiumPaidByGovt)}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">{getTranslatedText("Total Premium")}</p>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {formatCurrency(premiumDetails.premiumPaidByFarmer + premiumDetails.premiumPaidByGovt)}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="space-y-2">
-              <label htmlFor="state" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Map size={16} />
-                {getTranslatedText("State")}
-              </label>
-              <select
-                id="state"
-                value={state}
-                onChange={handleStateChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-              >
-                <option value="">{getTranslatedText("Select State")}</option>
-                {Object.keys(districtOptions).sort().map((stateName) => (
-                  <option key={stateName} value={stateName}>{stateName}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="district" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Map size={16} />
-                {getTranslatedText("District")}
-              </label>
-              <select
-                id="district"
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all ${!state ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}`}
-                disabled={!state}
-              >
-                <option value="">{getTranslatedText("Select District")}</option>
-                {state && districtOptions[state]?.map((districtName) => (
-                  <option key={districtName} value={districtName}>{districtName}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="crop" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Sprout size={16} />
-                {getTranslatedText("Crop")}
-              </label>
-              <select
-                id="crop"
-                value={crop}
-                onChange={(e) => setCrop(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-              >
-                <option value="">{getTranslatedText("Select Crop")}</option>
-                {insuranceParams.sort((a, b) => a.crop.localeCompare(b.crop)).map((param) => (
-                  <option key={param.crop} value={param.crop}>{param.crop} ({param.season})</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="area" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <FileText size={16} />
-                {getTranslatedText("Area (hectares)")}
-              </label>
-              <input
-                type="number"
-                id="area"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                min="0.1"
-                step="0.1"
-                placeholder={getTranslatedText("Enter land area")}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={calculatePremium}
-              disabled={loading}
-              className={`flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-3 px-8 rounded-lg transition duration-300 shadow ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                  <span>{getTranslatedText("Calculating...")}</span>
-                </>
-              ) : (
-                <>
-                  <Calculator size={18} />
-                  <span>{getTranslatedText("Calculate Premium")}</span>
-                </>
-              )}
-            </button>
-            <button
-              onClick={resetForm}
-              disabled={loading}
-              className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-8 rounded-lg transition duration-300"
-            >
-              <RotateCcw size={18} />
-              <span>{getTranslatedText("Reset")}</span>
-            </button>
-          </div>
         </div>
-
-        {premiumDetails && (
-          <div className="p-6 bg-gray-50 border-t border-gray-200">
-            <h2 className="text-xl font-semibold text-emerald-800 mb-4 flex items-center gap-2">
-              <FileText size={20} />
-              {getTranslatedText("Premium Calculation Results")}
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
-                <h3 className="text-lg font-medium text-gray-700 mb-4">{getTranslatedText("Policy Details")}</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Insurance Company")}</span>
-                    <span className="font-medium">{premiumDetails.insuranceCompany}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Crop")}</span>
-                    <span className="font-medium">{premiumDetails.crop}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Season")}</span>
-                    <span className={`${getSeasonColor(premiumDetails.season)} text-xs font-medium px-2.5 py-0.5 rounded`}>
-                      {premiumDetails.season}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Cut-off Date")}</span>
-                    <span className="font-medium flex items-center gap-1">
-                      <Calendar size={14} />
-                      {premiumDetails.cutOffDate}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Area (Hectares)")}</span>
-                    <span className="font-medium">{premiumDetails.area}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
-                <h3 className="text-lg font-medium text-gray-700 mb-4">{getTranslatedText("Coverage Details")}</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Sum Insured Per Hectare")}</span>
-                    <span className="font-medium">{formatCurrency(premiumDetails.sumInsuredPerHectare)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Total Sum Insured")}</span>
-                    <span className="font-medium">{formatCurrency(premiumDetails.totalSumInsured)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Actuarial Rate")}</span>
-                    <span className="font-medium">{premiumDetails.actuarialRate}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{getTranslatedText("Farmer Share")}</span>
-                    <span className="font-medium">{premiumDetails.farmerShare}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
-              <h3 className="text-lg font-medium text-gray-700 mb-4">{getTranslatedText("Premium Breakdown")}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-emerald-50 p-4 rounded-lg">
-                  <p className="text-sm text-emerald-600 mb-1">{getTranslatedText("Farmer Premium")}</p>
-                  <p className="text-2xl font-bold text-emerald-800">{formatCurrency(premiumDetails.premiumPaidByFarmer)}</p>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-600 mb-1">{getTranslatedText("Government Subsidy")}</p>
-                  <p className="text-2xl font-bold text-blue-800">{formatCurrency(premiumDetails.premiumPaidByGovt)}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">{getTranslatedText("Total Premium")}</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {formatCurrency(premiumDetails.premiumPaidByFarmer + premiumDetails.premiumPaidByGovt)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 

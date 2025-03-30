@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,6 +9,7 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState(localStorage.getItem("selectedLanguage") || "en");
   const navigate = useNavigate();
+  const languageDropdownRef = useRef(null);
 
   const navTexts = [
     "Home",
@@ -54,7 +55,7 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
         } catch (error) {
           console.error(`Error fetching translation for ${text}:`, error.message);
           console.log(`Error details for ${text}:`, error.response ? error.response.data : error);
-          return { [text]: text }; // Fallback for this specific text
+          return { [text]: text };
         }
       });
 
@@ -82,6 +83,23 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
     console.log("Translations state updated:", translations);
   }, [translations]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        languageDropdownRef.current &&
+        !languageDropdownRef.current.contains(event.target) &&
+        isLanguageDropdownOpen
+      ) {
+        setIsLanguageDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isLanguageDropdownOpen]);
+
   const getTranslatedText = (englishText) => {
     console.log("Current translations state:", translations);
     const translated = translations[englishText] || englishText;
@@ -107,6 +125,7 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
     if (onLanguageChange) {
       onLanguageChange(languageKey);
     }
+    window.location.reload();
   };
 
   const handleAuthAction = () => {
@@ -132,7 +151,7 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
         </Link>
 
         <div className="md:hidden flex items-center space-x-4">
-          <div className="relative">
+          <div className="relative" ref={languageDropdownRef}>
             <button onClick={toggleLanguageDropdown} className="text-white focus:outline-none">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
@@ -165,7 +184,7 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
             {isAuthenticated && (
               <>
                 <li><Link to="/dashboard" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Dashboard")}</Link></li>
-                <li className="relative hidden md:block">
+                <li className="relative hidden md:block" ref={languageDropdownRef}>
                   <button onClick={toggleLanguageDropdown} className="text-white py-2 px-3 rounded hover:bg-gray-700 flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />

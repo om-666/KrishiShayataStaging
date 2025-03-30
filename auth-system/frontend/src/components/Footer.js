@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Footer.css'; // Import the CSS file
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Spin } from "antd";
+import "./Footer.css"; // Import the CSS file
 
 const Footer = () => {
   const [translations, setTranslations] = useState({});
@@ -68,12 +69,8 @@ const Footer = () => {
   }, [selectedLanguage]);
 
   const getTranslatedText = (englishText) => {
-    return translations[englishText] || englishText;
+    return loadingTranslations ? <Spin size="small" /> : translations[englishText] || englishText;
   };
-
-  if (loadingTranslations) {
-    return <div>Loading translations...</div>;
-  }
 
   return (
     <footer className="footer">
@@ -81,8 +78,6 @@ const Footer = () => {
         <div className="footer-flex">
           <div className="footer-brand">
             <a href="#" className="footer-logo">
-              {/* Uncomment this line and add the image if you have a logo */}
-              {/* <img src="./assets/Navbar-Icon.jpeg" className="logo-image" alt="Krishi-Sahayak-Logo" /> */}
               <span className="footer-title">{getTranslatedText("କୃଷି ସହାୟକ")}</span>
             </a>
           </div>
@@ -101,9 +96,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="footer-bottom">
-          {getTranslatedText("© 2024 Krishi Sahayta. All rights reserved. | Privacy Policy | Terms of Service | Contact Us")}
-        </div>
+        <div className="footer-bottom">{getTranslatedText("© 2024 Krishi Sahayta. All rights reserved. | Privacy Policy | Terms of Service | Contact Us")}</div>
       </div>
     </footer>
   );

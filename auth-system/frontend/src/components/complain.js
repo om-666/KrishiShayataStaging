@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { message, DatePicker } from "antd";
 import axios from "axios";
+import Footer from "./Footer";
+import QuickAnimatedLoader from "./CustomLoader";
 
 const Complain = () => {
   const [formData, setFormData] = useState({
@@ -391,133 +393,136 @@ const Complain = () => {
   };
 
   if (loadingTranslations) {
-    return <div>Loading translations...</div>;
+    <QuickAnimatedLoader />
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
-      {contextHolder}
-      <div className="bg-gradient-to-r from-green-600 via-emerald-700 to-teal-800 p-8 sticky top-0 z-20 shadow-lg">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-mosaic.png')] opacity-10 animate-pulse-slow"></div>
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-extrabold text-center text-white mb-3 animate-slideDown tracking-tight">
-            {getTranslatedText("Report Crop Loss")}
-          </h2>
-          <p className="text-center text-green-100 text-lg md:text-xl animate-fadeInUp">
-            {getTranslatedText("Submit your claim with detailed information below")}
-          </p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-6 md:p-8">
-        {Object.entries(formSections).map(([section, fields], index) => (
-          <div key={section} className="mb-12 animate-fadeIn" style={{ animationDelay: `${index * 0.1}s` }}>
-            <h3 className="text-3xl font-bold text-gray-800 mb-6 pb-3 border-b-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1 hover:shadow-md">
-              {getTranslatedText(section)}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {fields.map((key) => (
-                <div key={key} className="relative group">
-                  <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
-                    {getTranslatedText(key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()))}
-                  </label>
-                  {["claimType", "farmerType", "state", "causeOfLoss", "district"].includes(key) ? (
-                    <select
-                      name={key}
-                      required
-                      value={formData[key]}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
-                    >
-                      <option value="">
-                        {getTranslatedText(`Select ${key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}`)}
-                      </option>
-                      {key === "claimType" &&
-                        ["Farm Vehicle Replacement", "Irrigation System Maintenance", "Farm Liability Insurance", "Agricultural Building Repair"].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      {key === "farmerType" &&
-                        ["Small", "Semi-Medium", "Medium", "Large"].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      {key === "state" &&
-                        Object.keys(districtOptions).map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      {key === "causeOfLoss" &&
-                        ["Drought", "Flood", "Frost", "Hailstorm", "Windstorm", "Excessive Heat", "Excessive Rainfall"].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      {key === "district" &&
-                        formData.state &&
-                        districtOptions[formData.state].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                    </select>
-                  ) : key === "sowingDate" ? (
-                    <DatePicker
-                      onChange={handleDateChange}
-                      className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
-                      placeholder={getTranslatedText("Enter date of sowing")}
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      name={key}
-                      required
-                      value={formData[key]}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
-                      placeholder={getTranslatedText(`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`)}
-                    />
-                  )}
-                  {touchedFields[key] && errors[key] && (
-                    <p className="absolute -bottom-6 left-2 text-sm text-red-500 animate-bounceIn font-medium">{errors[key]}</p>
-                  )}
-                </div>
-              ))}
-            </div>
+    <>
+      <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
+        {contextHolder}
+        <div className="bg-gradient-to-r from-green-600 via-emerald-700 to-teal-800 p-8 sticky top-0 z-20 shadow-lg">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-mosaic.png')] opacity-10 animate-pulse-slow"></div>
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-5xl md:text-6xl font-extrabold text-center text-white mb-3 animate-slideDown tracking-tight">
+              {getTranslatedText("Report Crop Loss")}
+            </h2>
+            <p className="text-center text-green-100 text-lg md:text-xl animate-fadeInUp">
+              {getTranslatedText("Submit your claim with detailed information below")}
+            </p>
           </div>
-        ))}
-
-        <div className="flex justify-center py-12">
-          <button
-            type="submit"
-            className="px-12 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-emerald-300 relative overflow-hidden group"
-          >
-            <span className="relative z-10">{getTranslatedText("Submit Claim")}</span>
-            <span className="absolute inset-0 bg-green-800 opacity-0 group-hover:opacity-30 animate-scaleIn transition-opacity duration-300"></span>
-            <span className="absolute top-0 left-0 w-0 h-full bg-white/20 group-hover:w-full transition-all duration-500"></span>
-          </button>
         </div>
-      </form>
 
-      {showSuccess && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full shadow-2xl animate-bounceIn flex items-center z-50">
-          <svg className="w-7 h-7 mr-3 animate-spinSlow" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-          <span className="text-lg font-semibold">{getTranslatedText("Claim Submitted Successfully!")}</span>
+        <form onSubmit={handleSubmit} className="max-w-7xl mx-auto p-6 md:p-8">
+          {Object.entries(formSections).map(([section, fields], index) => (
+            <div key={section} className="mb-12 animate-fadeIn" style={{ animationDelay: `${index * 0.1}s` }}>
+              <h3 className="text-3xl font-bold text-gray-800 mb-6 pb-3 border-b-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1 hover:shadow-md">
+                {getTranslatedText(section)}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {fields.map((key) => (
+                  <div key={key} className="relative group">
+                    <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
+                      {getTranslatedText(key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()))}
+                    </label>
+                    {["claimType", "farmerType", "state", "causeOfLoss", "district"].includes(key) ? (
+                      <select
+                        name={key}
+                        required
+                        value={formData[key]}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300 appearance-none`}
+                      >
+                        <option value="">
+                          {getTranslatedText(`Select ${key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}`)}
+                        </option>
+                        {key === "claimType" &&
+                          ["Farm Vehicle Replacement", "Irrigation System Maintenance", "Farm Liability Insurance", "Agricultural Building Repair"].map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        {key === "farmerType" &&
+                          ["Small", "Semi-Medium", "Medium", "Large"].map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        {key === "state" &&
+                          Object.keys(districtOptions).map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        {key === "causeOfLoss" &&
+                          ["Drought", "Flood", "Frost", "Hailstorm", "Windstorm", "Excessive Heat", "Excessive Rainfall"].map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        {key === "district" &&
+                          formData.state &&
+                          districtOptions[formData.state].map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                      </select>
+                    ) : key === "sowingDate" ? (
+                      <DatePicker
+                        onChange={handleDateChange}
+                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                        placeholder={getTranslatedText("Enter date of sowing")}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        name={key}
+                        required
+                        value={formData[key]}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`w-full px-5 py-3 rounded-xl border ${touchedFields[key] && errors[key] ? "border-red-400 shadow-red-100" : "border-emerald-200"} bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-md hover:shadow-lg transition-all duration-300`}
+                        placeholder={getTranslatedText(`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`)}
+                      />
+                    )}
+                    {touchedFields[key] && errors[key] && (
+                      <p className="absolute -bottom-6 left-2 text-sm text-red-500 animate-bounceIn font-medium">{errors[key]}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="flex justify-center py-12">
+            <button
+              type="submit"
+              className="px-12 py-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-emerald-300 relative overflow-hidden group"
+            >
+              <span className="relative z-10">{getTranslatedText("Submit Claim")}</span>
+              <span className="absolute inset-0 bg-green-800 opacity-0 group-hover:opacity-30 animate-scaleIn transition-opacity duration-300"></span>
+              <span className="absolute top-0 left-0 w-0 h-full bg-white/20 group-hover:w-full transition-all duration-500"></span>
+            </button>
+          </div>
+        </form>
+
+        {showSuccess && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full shadow-2xl animate-bounceIn flex items-center z-50">
+            <svg className="w-7 h-7 mr-3 animate-spinSlow" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-lg font-semibold">{getTranslatedText("Claim Submitted Successfully!")}</span>
+          </div>
+        )}
+
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-      )}
-
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
