@@ -21,6 +21,7 @@ const complaintSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+
 const Complaint = mongoose.model("Complaint", complaintSchema);
 
 module.exports = Complaint;

@@ -132,7 +132,7 @@ const Admin = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ status: newStatus }), // ✅ Sends status update
+                body: JSON.stringify({ status: newStatus }),
             });
     
             const data = await response.json();

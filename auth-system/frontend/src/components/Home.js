@@ -86,7 +86,6 @@ const FeatureCard = () => {
 
 };
 
-// Helper function to get image file name based on title
 const getImageFileName = (title) => {
   const map = {
     "Check Application Status": "farmer",

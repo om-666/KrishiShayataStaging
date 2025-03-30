@@ -297,7 +297,6 @@ const Complain = () => {
         return;
       }
     } else if (name === "state") {
-      // Reset district when state changes
       setFormData((prev) => ({ ...prev, state: value, district: "" }));
       setErrors((prev) => ({ ...prev, district: getTranslatedText("District is required") }));
       return;

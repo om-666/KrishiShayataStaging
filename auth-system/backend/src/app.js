@@ -96,7 +96,6 @@ app.post('/api/translate', async (req, res) => {
             return res.status(400).json({ message: "❌ Invalid language code. Supported codes: " + validLangCodes.join(', ') });
         }
 
-        // Find the text in the database
         const textData = await TextData.findOne({ en });
         
         if (!textData) {
