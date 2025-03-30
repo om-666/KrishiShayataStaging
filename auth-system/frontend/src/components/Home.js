@@ -2,21 +2,23 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./FeatureCard.css";
+import Footer from "./Footer";
+import QuickAnimatedLoader from "./CustomLoader";
+
 
 const FeatureCard = () => {
   const navigate = useNavigate();
   const [translations, setTranslations] = useState({});
   const [loading, setLoading] = useState(true);
-  const selectedLanguage = localStorage.getItem("selectedLanguage") || "en"; // Get language code from localStorage
+  const selectedLanguage = localStorage.getItem("selectedLanguage") || "en";
 
   const cardTitles = [
-    "Check Application Status",
-    "Report Crop Loss",
-    "Video Tutorial",
-    "Krishi Mitra",
-    "Admin Login",
     "Insurance Premium Calculator",
     "Apply for Crop Insurance",
+    "Report Crop Loss",
+    "Check Application Status",
+    "Video Tutorial",
+    "Admin Login",
   ];
 
   useEffect(() => {
@@ -30,7 +32,6 @@ const FeatureCard = () => {
           });
           return { [title]: response.data.translation };
         });
-
         const results = await Promise.all(translationPromises);
         const translationMap = Object.assign({}, ...results);
         setTranslations(translationMap);
@@ -46,68 +47,100 @@ const FeatureCard = () => {
         setLoading(false);
       }
     };
-
     fetchTranslations();
-  }, [selectedLanguage]); // Refetch when selectedLanguage changes
+  }, [selectedLanguage]);
 
   const getTranslatedText = (englishText) => {
     return translations[englishText] || englishText;
   };
 
   if (loading) {
-    return <div>Loading translations...</div>;
+    return (
+      <QuickAnimatedLoader />
+    );
   }
 
   return (
-    <div className="container">
-      <Card
-        title={getTranslatedText("Check Application Status")}
-        imageSrc="/assets/farmer.png"
-        href="http://localhost:3000/"
-      />
-      <Card
-        title={getTranslatedText("Report Crop Loss")}
-        imageSrc="/assets/complaint.png"
-        onClick={() => navigate("/complain")}
-      />
-      <Card
-        title={getTranslatedText("Video Tutorial")}
-        imageSrc="/assets/video-tutorials.png"
-        onClick={() => navigate("/video")}
-      />
-      <Card
-        title={getTranslatedText("Krishi Mitra")}
-        imageSrc="/assets/krishi-mitra.png"
-        href="https://om-666.github.io/BOT/"
-      />
-      <Card
-        title={getTranslatedText("Admin Login")}
-        imageSrc="/assets/admin-login.png"
-        href="http://localhost:3000/admin/login"
-      />
-      <Card
-        title={getTranslatedText("Insurance Premium Calculator")}
-        imageSrc="/assets/calculator.png"
-        onClick={() => navigate("/calculator")}
-      />
-      <Card
-        title={getTranslatedText("Apply for Crop Insurance")}
-        imageSrc="/assets/crop-insurance.png"
-        onClick={() => navigate("/apply")}
-      />
-    </div>
+    <>
+      <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cardTitles.map((title) => (
+          <Card
+            key={title}
+            title={getTranslatedText(title)}
+            imageSrc={`/assets/${getImageFileName(title)}.png`}
+            href={title === "Check Application Status" ? "http://localhost:3000/" : null}
+            onClick={
+              title !== "Check Application Status" && title !== "Admin Login"
+                ? () => navigate(`/${getNavigationPath(title)}`)
+                : null
+            }
+            href2={title === "Admin Login" ? "http://localhost:3000/admin/login" : null}
+          />
+        ))}
+      </div>
+
+      {/* Footer component added here */}
+      <Footer />
+    </>
   );
+
 };
 
-const Card = ({ title, imageSrc, href, onClick }) => (
-  <a href={href} className="card" onClick={onClick}>
-    <div className="card-container">
-      <img className="card-image" src={imageSrc} alt="" />
-      <div className="card-content">
-        <h2 className="card-title">{title}</h2>
+// Helper function to get image file name based on title
+const getImageFileName = (title) => {
+  const map = {
+    "Check Application Status": "farmer",
+    "Report Crop Loss": "complaint",
+    "Video Tutorial": "video-tutorials",
+    "Admin Login": "admin-login",
+    "Insurance Premium Calculator": "calculator",
+    "Apply for Crop Insurance": "crop-insurance",
+  };
+  return map[title];
+};
+
+// Helper function to get navigation path based on title
+const getNavigationPath = (title) => {
+  const map = {
+    "Report Crop Loss": "complain",
+    "Video Tutorial": "video",
+    "Insurance Premium Calculator": "calculator",
+    "Apply for Crop Insurance": "apply",
+  };
+  return map[title];
+};
+
+const Card = ({ title, imageSrc, href, href2, onClick }) => {
+  const actualHref = href || href2;
+
+  return (
+    <a
+      href={actualHref}
+      onClick={onClick}
+      className="group relative block w-full h-48 overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-lg"
+    >
+      <div className="absolute inset-0 bg-black opacity-10 group-hover:opacity-0 transition-opacity duration-300 z-10"></div>
+
+      <div className="absolute inset-0 overflow-hidden">
+        <img
+          className="h-full w-full object-contain object-center p-2 transition-transform duration-500 group-hover:scale-105"
+          src={imageSrc}
+          alt={title}
+        />
       </div>
-    </div>
-  </a>
-);
+
+      <div className="absolute bottom-0 left-0 right-0 p-3 bg-black bg-opacity-60 text-white z-20">
+        <h2 className="text-base font-semibold leading-tight">{title}</h2>
+      </div>
+
+      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white bg-opacity-70 flex items-center justify-center z-20 opacity-0 transform translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+
+    </a>
+  );
+};
 
 export default FeatureCard;

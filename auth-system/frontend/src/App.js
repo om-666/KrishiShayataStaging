@@ -53,7 +53,7 @@ function App() {
         <Route path="/admin" element={<PrivateRoute element={<Admin />} />} /> {/* Admin Page Route */}
         <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
       </Routes>
-      <Footer />
+
     </Router>
   );
 }

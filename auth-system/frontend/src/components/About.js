@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import './AboutPage.css'; // Ensure you create this CSS file to style the component
+import Footer from './Footer';
+import QuickAnimatedLoader from "./CustomLoader";
 
 const AboutPage = () => {
   const [translations, setTranslations] = useState({});
@@ -81,60 +83,64 @@ const AboutPage = () => {
   };
 
   if (loadingTranslations) {
-    return <div>Loading translations...</div>;
+    <QuickAnimatedLoader />
   }
 
   return (
-    <div className="container">
-      <div className="content">
-        <div id="English">
-          <div className="section">
-            <div className="text-section">
-              <h1 className="heading">{getTranslatedText("Our Mission")}</h1>
-              <p className="paragraph">
-                {getTranslatedText("At Krishi Sahayata, our mission is to revolutionize crop insurance through innovation and technology. We understand the challenges faced by farmers and the government alike, and our solution aims to bridge the gap by providing a comprehensive platform for seamless crop insurance services.")}
-              </p>
-              <h1 className="heading">{getTranslatedText("Our Solution")}</h1>
-              <p className="paragraph">
-                {getTranslatedText("Crop Insurance is an integrated IT solution and a web-based ecosystem designed to streamline service delivery, unify fragmented databases, and eliminate manual processes. Our platform offers features such as:")}
-              </p>
-              <ul className="feature-list">
-                <li>{getTranslatedText("Local-language support for enhanced accessibility")}</li>
-                <li>{getTranslatedText("SMS notifications and helpline support for farmers")}</li>
-                <li>{getTranslatedText("Verification of claims using meteorological data")}</li>
-                <li>{getTranslatedText("Transparent administration through Aadhar integration")}</li>
-                <li>{getTranslatedText("Guidance on insurance policies and video tutorials for farmer awareness")}</li>
-              </ul>
+    <>
+      <div className="container">
+        <div className="content">
+          <div id="English">
+            <div className="section">
+              <div className="text-section">
+                <h1 className="heading">{getTranslatedText("Our Mission")}</h1>
+                <p className="paragraph">
+                  {getTranslatedText("At Krishi Sahayata, our mission is to revolutionize crop insurance through innovation and technology. We understand the challenges faced by farmers and the government alike, and our solution aims to bridge the gap by providing a comprehensive platform for seamless crop insurance services.")}
+                </p>
+                <h1 className="heading">{getTranslatedText("Our Solution")}</h1>
+                <p className="paragraph">
+                  {getTranslatedText("Crop Insurance is an integrated IT solution and a web-based ecosystem designed to streamline service delivery, unify fragmented databases, and eliminate manual processes. Our platform offers features such as:")}
+                </p>
+                <ul className="feature-list">
+                  <li>{getTranslatedText("Local-language support for enhanced accessibility")}</li>
+                  <li>{getTranslatedText("SMS notifications and helpline support for farmers")}</li>
+                  <li>{getTranslatedText("Verification of claims using meteorological data")}</li>
+                  <li>{getTranslatedText("Transparent administration through Aadhar integration")}</li>
+                  <li>{getTranslatedText("Guidance on insurance policies and video tutorials for farmer awareness")}</li>
+                </ul>
+              </div>
+              <div className="image-section">
+                <img className="main-image" src="./assets/pexels-pixabay-235731.jpg" alt="A group of People" />
+              </div>
             </div>
-            <div className="image-section">
-              <img className="main-image" src="./assets/pexels-pixabay-235731.jpg" alt="A group of People" />
-            </div>
-          </div>
 
-          <div className="section about-us">
-            <div className="text-section">
-              <h1 className="heading">{getTranslatedText("About Us")}</h1>
-              <p className="paragraph">
-                {getTranslatedText("We are a group of passionate 3rd-year students at Siksha 'O' Anusandhan University, driven by our shared love for technology and our commitment to solving real-world problems.")}
-              </p>
-            </div>
-            <div className="team-section">
-              <div className="team-grid">
-                {['Sudiksha', 'OTP', 'Sumit', 'Smriti', 'Chanchal'].map((name, index) => (
-                  <div key={index} className="team-member">
-                    <img className="team-image" src={`./assets/${name.toLowerCase()}.jpg`} alt={`${name}`}
-                    onError={(e) => {
-                      e.target.src = './assets/placeholder.jpg'; // Fallback image if loading fails
-                    }} />
-                    <p className="team-name">{getTranslatedText(name)}</p>
-                  </div>
-                ))}
+            <div className="section about-us">
+              <div className="text-section">
+                <h1 className="heading">{getTranslatedText("About Us")}</h1>
+                <p className="paragraph">
+                  {getTranslatedText("We are a group of passionate 3rd-year students at Siksha 'O' Anusandhan University, driven by our shared love for technology and our commitment to solving real-world problems.")}
+                </p>
+              </div>
+              <div className="team-section">
+                <div className="team-grid">
+                  {['Sudiksha', 'OTP', 'Sumit', 'Smriti', 'Chanchal'].map((name, index) => (
+                    <div key={index} className="team-member">
+                      <img className="team-image" src={`./assets/${name.toLowerCase()}.jpg`} alt={`${name}`}
+                        onError={(e) => {
+                          e.target.src = './assets/placeholder.jpg'; // Fallback image if loading fails
+                        }} />
+                      <p className="team-name">{getTranslatedText(name)}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
+
   );
 };
 

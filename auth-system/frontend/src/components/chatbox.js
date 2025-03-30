@@ -50,12 +50,12 @@ const ChatBot = () => {
         }
     };
 
-    useEffect(() => {
-        enableSwalekh('#input-text', selectedLanguage.key, "phonetic", '1');
-        return () => {
-            disableSwalekh('#input-text');
-        };
-    }, [selectedLanguage]);
+    // useEffect(() => {
+    //     enableSwalekh('#input-text', selectedLanguage.key, "phonetic", '1');
+    //     return () => {
+    //         disableSwalekh('#input-text');
+    //     };
+    // }, [selectedLanguage]);
 
     useEffect(() => {
         if (chatRef.current) {

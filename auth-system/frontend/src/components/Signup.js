@@ -8,7 +8,6 @@ function Signup() {
   const [phone, setPhone] = useState('');
   const [aadhar, setAadhar] = useState('');
   const [address, setAddress] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [activeFeature, setActiveFeature] = useState(null);
   const [message, setMessage] = useState('');
@@ -52,7 +51,6 @@ function Signup() {
         phone,
         aadhar,
         address,
-        email,
         password
       });
 
@@ -130,13 +128,6 @@ function Signup() {
               placeholder="Address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
             />
             <input
