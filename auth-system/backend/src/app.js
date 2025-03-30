@@ -242,7 +242,7 @@ async function fetchFormDatas() {
     try {
         await client.connect();
         const db = client.db(); // Uses default database from URI
-        const collection = db.collection("formdatas");
+        const collection = db.collection("complaints");
         return await collection.find({}).toArray();
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -252,10 +252,39 @@ async function fetchFormDatas() {
     }
 }
 
-app.get("/api/formdatas", async (req, res) => {
+app.get("/api/complaints", async (req, res) => {
     const data = await fetchFormDatas();
     res.json(data);
 });
+
+app.put("/api/complaints/:id/status", async (req, res) => {
+    const { status } = req.body;
+
+    // Ensure status is valid
+    if (!["Pending", "Approved", "Rejected"].includes(status)) {
+        return res.status(400).json({ message: "❌ Invalid status provided" });
+    }
+
+    try {
+        const updatedComplaint = await ComplainData.findById(req.params.id);
+        if (!updatedComplaint) {
+            return res.status(404).json({ message: "❌ Complaint not found" });
+        }
+
+        // Update only if status has changed
+        if (updatedComplaint.status !== status) {
+            updatedComplaint.status = status;
+            await updatedComplaint.save();
+        }
+
+        console.log("✅ Complaint updated successfully:", updatedComplaint);
+        res.json({ message: "✅ Status updated successfully", complaint: updatedComplaint });
+    } catch (error) {
+        console.error("❌ Error updating status:", error);
+        res.status(500).json({ message: "❌ Server error", error: error.message });
+    }
+});
+
 
 // Error Handler Middleware
 app.use((err, req, res, next) => {
