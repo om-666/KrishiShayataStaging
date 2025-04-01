@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,6 +11,7 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
   const [selectedLanguage, setSelectedLanguage] = useState(localStorage.getItem("selectedLanguage") || "en");
   const navigate = useNavigate();
   const languageDropdownRef = useRef(null);
+  const isAdminPath = window.location.pathname === '/admin';
 
   const navTexts = [
     "Home",
@@ -177,43 +179,51 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
         </div>
 
         <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:block md:w-auto`} id="navbar-dropdown">
-          <ul className="flex flex-col md:flex-row font-medium p-4 md:p-0 mt-4 md:mt-0 space-y-3 md:space-y-0 md:space-x-4">
-            <li><Link to="/home" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Home")}</Link></li>
-            <li><Link to="/about" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("About")}</Link></li>
-            <li><Link to="/contact" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Contact")}</Link></li>
-            {isAuthenticated && (
-              <>
-                <li><Link to="/dashboard" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Dashboard")}</Link></li>
-                <li className="relative hidden md:block" ref={languageDropdownRef}>
-                  <button onClick={toggleLanguageDropdown} className="text-white py-2 px-3 rounded hover:bg-gray-700 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                    </svg>
-                    {getTranslatedText("Language")}
-                  </button>
-                  {isLanguageDropdownOpen && (
-                    <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-50 w-64">
-                      <div className="max-h-48 overflow-y-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)' }}>
-                        {languages.map((lang) => (
-                          <button key={lang.key} onClick={() => handleLanguageSelect(lang.key)} className="px-4 py-2 text-left hover:bg-gray-200 cursor-pointer">
-                            {lang.label}
-                          </button>
-                        ))}
+          {!isAdminPath && (
+            <ul className="flex flex-col md:flex-row font-medium p-4 md:p-0 mt-4 md:mt-0 space-y-3 md:space-y-0 md:space-x-4">
+              <li><Link to="/home" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Home")}</Link></li>
+              <li><Link to="/about" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("About")}</Link></li>
+              <li><Link to="/contact" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Contact")}</Link></li>
+              {isAuthenticated && (
+                <>
+                  <li><Link to="/dashboard" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Dashboard")}</Link></li>
+                  <li className="relative hidden md:block" ref={languageDropdownRef}>
+                    <button onClick={toggleLanguageDropdown} className="text-white py-2 px-3 rounded hover:bg-gray-700 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                      </svg>
+                      {getTranslatedText("Language")}
+                    </button>
+                    {isLanguageDropdownOpen && (
+                      <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-50 w-64">
+                        <div className="max-h-48 overflow-y-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)' }}>
+                          {languages.map((lang) => (
+                            <button key={lang.key} onClick={() => handleLanguageSelect(lang.key)} className="px-4 py-2 text-left hover:bg-gray-200 cursor-pointer">
+                              {lang.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </li>
-              </>
-            )}
-            {!isAuthenticated && (
-              <li><Link to="/signup" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Signup")}</Link></li>
-            )}
-            <li>
-              <button onClick={handleAuthAction} className="text-white py-2 px-4 rounded-md" style={{ backgroundColor: '#7A9578' }}>
-                {isAuthenticated ? getTranslatedText("Logout") : getTranslatedText("Login")}
-              </button>
-            </li>
-          </ul>
+                    )}
+                  </li>
+                </>
+              )}
+              {!isAuthenticated && (
+                <li><Link to="/signup" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Signup")}</Link></li>
+              )}
+              <li>
+
+                <button
+                  onClick={handleAuthAction}
+                  className="text-white py-2 px-4 rounded-md"
+                  style={{ backgroundColor: '#7A9578' }}
+                >
+                  {isAuthenticated ? getTranslatedText("Logout") : getTranslatedText("Login")}
+                </button>
+
+              </li>
+            </ul>
+          )}
         </div>
       </div>
     </nav>

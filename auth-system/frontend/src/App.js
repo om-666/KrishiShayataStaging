@@ -14,9 +14,11 @@ import Complain from './components/complain';
 import ApplyInsuranceForm from './components/ApplyCropInsurance';
 import Calculators from './components/calculator';
 import Admin from './components/Admin'; // Import Admin Page
+import AdminLogin from './components/AdminLogins';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!Cookies.get('userAadhar'));
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => !!sessionStorage.getItem('isAdminAuthenticated'));
 
   const handleLoginSuccess = (aadhar) => {
     Cookies.set('userAadhar', aadhar, { expires: 7 });
@@ -28,6 +30,25 @@ function App() {
     Cookies.remove('userAadhar');
   };
 
+  const handleAdminLogin = () => {
+    sessionStorage.setItem('isAdminAuthenticated', 'true');
+    setIsAdminAuthenticated(true);
+  };
+
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem('isAdminAuthenticated');
+    setIsAdminAuthenticated(false);
+  };
+
+  const ProtectedAdminRoute = ({ element }) => {
+    return isAdminAuthenticated ? element : <Navigate to="/adminlogin" />;
+  };
+
+  useEffect(() => {
+    const authStatus = sessionStorage.getItem('isAdminAuthenticated');
+    setIsAdminAuthenticated(!!authStatus);
+  }, []);
+
   const PrivateRoute = ({ element }) => isAuthenticated ? element : <Navigate to="/login" />;
   const UnauthenticatedRoute = ({ element }) => !isAuthenticated ? element : <Navigate to="/home" />;
   const userAadhar = Cookies.get('userAadhar');
@@ -35,7 +56,6 @@ function App() {
   useEffect(() => {
     setIsAuthenticated(!!userAadhar);
   }, [userAadhar]);
-
   return (
     <Router>
       <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
@@ -50,10 +70,10 @@ function App() {
         <Route path="/complain" element={<PrivateRoute element={<Complain />} />} />
         <Route path="/apply" element={<PrivateRoute element={<ApplyInsuranceForm />} />} />
         <Route path="/calculator" element={<PrivateRoute element={<Calculators />} />} />
-        <Route path="/admin" element={<PrivateRoute element={<Admin />} />} /> {/* Admin Page Route */}
+        <Route path="/admin" element={<ProtectedAdminRoute element={<Admin onAdminLogout={handleAdminLogout} />} />} />
+        <Route path="/adminlogin" element={<AdminLogin onAdminLogin={handleAdminLogin} />} />
         <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
       </Routes>
-
     </Router>
   );
 }

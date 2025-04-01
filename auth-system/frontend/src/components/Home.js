@@ -74,7 +74,7 @@ const FeatureCard = () => {
                 ? () => navigate(`/${getNavigationPath(title)}`)
                 : null
             }
-            href2={title === "Admin Login" ? "http://localhost:3000/admin/" : null}
+            href2={title === "Admin Login" ? "http://localhost:3000/adminlogin" : null}
           />
         ))}
       </div>
