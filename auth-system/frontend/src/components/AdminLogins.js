@@ -12,7 +12,7 @@ const AdminLogin = ({ onAdminLogin }) => {
 
     // Hardcoded credentials
     const ADMIN_USERNAME = 'krishi_admin';
-    const ADMIN_PASSWORD = 'krishisahayata';
+    const ADMIN_PASSWORD = '123';
 
     // Color scheme
     const primaryColor = 'rgb(37, 49, 45)';
