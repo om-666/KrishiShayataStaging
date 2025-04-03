@@ -15,7 +15,6 @@ const TextData = require('./models/textDataModel');
 const axios = require('axios');  
 
 const app = express();
-
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
@@ -77,6 +76,55 @@ app.post("/api/complain", async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+app.get("/api/complain", async (req, res) => {
+    try {
+        const { aadhaar } = req.query;
+
+        if (!aadhaar) {
+            return res.status(400).json({ message: "Aadhaar number is required" });
+        }
+
+        const complaints = await ComplainData.find({ aadhaar });
+
+        if (!complaints || complaints.length === 0) {
+            return res.status(404).json({ message: "No complaints found for this Aadhaar number." });
+        }
+
+        res.status(200).json(complaints);
+    } catch (error) {
+        console.error("Error fetching complaints:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+app.get("/api/complain/status", async (req, res) => {
+    try {
+        const { id } = req.query;
+
+        // Validate the ID
+        if (!id) {
+            return res.status(400).json({ message: "Complaint ID is required" });
+        }
+
+        // Find complaint by _id
+        const complaint = await ComplainData.findById(id);
+
+        if (!complaint) {
+            return res.status(404).json({ message: "Complaint not found" });
+        }
+
+        // Return only the status and complaint ID
+        res.status(200).json({ 
+            status: complaint.status,
+            complaintId: complaint._id 
+        });
+    } catch (error) {
+        console.error("Error fetching complaint status:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 app.post('/api/translate', async (req, res) => {
     try {
@@ -187,7 +235,6 @@ app.post('/api/save-text', async (req, res) => {
                     }
                 });
 
-                console.log(`Translation response for ${tgtLang}:`, response.data);
                 // Extract the translated text from responseList[0].outString
                 const translatedText = response.data.responseList[0].outString;
                 textDataPayload[tgtLang] = translatedText;
@@ -260,7 +307,7 @@ app.put("/api/complaints/:id/status", async (req, res) => {
     const { status } = req.body;
 
     // Ensure status is valid
-    if (!["Pending", "Approved", "Rejected"].includes(status)) {
+    if (!["Pending", "Approved", "Rejected", "In Review"].includes(status)) { // Add "In Review"
         return res.status(400).json({ message: "❌ Invalid status provided" });
     }
 
@@ -276,7 +323,6 @@ app.put("/api/complaints/:id/status", async (req, res) => {
             await updatedComplaint.save();
         }
 
-        console.log("✅ Complaint updated successfully:", updatedComplaint);
         res.json({ message: "✅ Status updated successfully", complaint: updatedComplaint });
     } catch (error) {
         console.error("❌ Error updating status:", error);
