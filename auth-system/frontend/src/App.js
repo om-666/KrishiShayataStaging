@@ -15,6 +15,7 @@ import ApplyInsuranceForm from './components/ApplyCropInsurance';
 import Calculators from './components/calculator';
 import Admin from './components/Admin'; // Import Admin Page
 import AdminLogin from './components/AdminLogins';
+import Status from './components/Status';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!Cookies.get('userAadhar'));
@@ -70,6 +71,7 @@ function App() {
         <Route path="/complain" element={<PrivateRoute element={<Complain />} />} />
         <Route path="/apply" element={<PrivateRoute element={<ApplyInsuranceForm />} />} />
         <Route path="/calculator" element={<PrivateRoute element={<Calculators />} />} />
+        <Route path="/status" element={<PrivateRoute element={<Status />} />} />
         <Route path="/admin" element={<ProtectedAdminRoute element={<Admin onAdminLogout={handleAdminLogout} />} />} />
         <Route path="/adminlogin" element={<AdminLogin onAdminLogin={handleAdminLogin} />} />
         <Route path="/" element={<UnauthenticatedRoute element={<Signup />} />} />
