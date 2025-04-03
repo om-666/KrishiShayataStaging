@@ -65,17 +65,18 @@ const FeatureCard = () => {
       <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardTitles.map((title) => (
           <Card
-            key={title}
-            title={getTranslatedText(title)}
-            imageSrc={`/assets/${getImageFileName(title)}.png`}
-            href={title === "Check Application Status" ? "http://localhost:3000/" : null}
-            onClick={
-              title !== "Check Application Status" && title !== "Admin Login"
-                ? () => navigate(`/${getNavigationPath(title)}`)
-                : null
-            }
-            href2={title === "Admin Login" ? "http://localhost:3000/adminlogin" : null}
-          />
+          key={title}
+          title={getTranslatedText(title)}
+          imageSrc={`/assets/${getImageFileName(title)}.png`}
+          href={title === "Check Application Status" ? "/status" : null}
+          onClick={
+            title !== "Check Application Status" && title !== "Admin Login"
+              ? () => navigate(`/${getNavigationPath(title)}`)
+              : null
+          }
+          href2={title === "Admin Login" ? "http://localhost:3000/adminlogin" : null}
+        />
+        
         ))}
       </div>
 
