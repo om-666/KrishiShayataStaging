@@ -217,11 +217,35 @@ const Admin = ({ onAdminLogout }) => {
         }
     };
 
-    const handleStatusClick = (item) => {
-        setSelectedItem(null);
-        setTimeout(() => {
-            setSelectedItem(item);
-        }, 50);
+    const handleStatusClick = async (item) => { 
+        try {
+            // Fetch the current status from the API
+            const response = await fetch(`http://localhost:5000/api/complain/status?id=${item._id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to fetch complaint status');
+            }    
+            const data = await response.json();
+            
+            const currentStatus = data.status;
+            if (currentStatus !== "Rejected" && currentStatus !== "Approved") {
+                await updateComplaintStatus(item._id, "In Review");
+            } else {
+            }
+    
+            setSelectedItem(null);
+            setTimeout(() => {
+                setSelectedItem(item);
+            }, 50);
+    
+        } catch (error) {
+            console.error("Error in handleStatusClick:", error);
+        }
     };
 
     const closePopup = () => {
@@ -346,6 +370,7 @@ const Admin = ({ onAdminLogout }) => {
                                         <option value="pending">Pending</option>
                                         <option value="approved">Approved</option>
                                         <option value="rejected">Rejected</option>
+                                        <option value="in review">In Review</option>
                                     </select>
                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                         <Filter size={16} />
