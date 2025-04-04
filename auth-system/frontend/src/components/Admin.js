@@ -23,6 +23,21 @@ const Admin = ({ onAdminLogout }) => {
         navigate('/adminlogin'); // Redirect to login page
     };
 
+    const languages = [
+        { key: "en",  states: ["All India (Urban & Official)"] },
+        { key: "hi",  states: ["Uttar Pradesh", "Bihar", "Madhya Pradesh", "Rajasthan", "Haryana", "Himachal Pradesh", "Chhattisgarh", "Jharkhand", "Uttarakhand", "Delhi"] },
+        { key: "as",  states: ["Assam"] },
+        { key: "bn",  states: ["West Bengal", "Tripura", "Assam"] },
+        { key: "gu",  states: ["Gujarat", "Dadra and Nagar Haveli and Daman and Diu"] },
+        { key: "kn",  states: ["Karnataka"] },
+        { key: "ml",  states: ["Kerala", "Lakshadweep"] },
+        { key: "mr",  states: ["Maharashtra", "Goa"] },
+        { key: "or",  states: ["Odisha"] },
+        { key: "pa",  states: ["Punjab", "Haryana (some regions)", "Delhi (some regions)"] },
+        { key: "ta",  states: ["Tamil Nadu", "Puducherry"] },
+        { key: "te",  states: ["Andhra Pradesh", "Telangana", "Puducherry (Yanam)"] }
+    ];
+
     // Fetch complaints from API
     useEffect(() => {
         setIsLoading(true);
@@ -172,35 +187,105 @@ const Admin = ({ onAdminLogout }) => {
 
     const updateComplaintStatus = async (id, newStatus) => {
         try {
+            // Step 1: Fetch complaint details
+            const complaintResponse = await fetch(`http://localhost:5000/api/complain/status?id=${id}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+    
+            if (!complaintResponse.ok) throw new Error("Failed to fetch complaint details");
+    
+            const complaintData = await complaintResponse.json();
+            let phoneNumber = complaintData.phone;
+            const userName = complaintData.name;
+            const userState = complaintData.state;
+    
+            if (!phoneNumber || !userName || !userState) throw new Error("Missing complaint details");
+    
+            // Step 2: Ensure phone number has +91 prefix
+            if (!phoneNumber.startsWith("+91")) phoneNumber = `+91${phoneNumber}`;
+    
+            // Step 3: Determine language based on state
+            const userLanguage = languages.find(lang => lang.states.includes(userState))?.key || "en";
+    
+            // Step 4: Update complaint status
             const response = await fetch(`http://localhost:5000/api/complaints/${id}/status`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: newStatus }),
             });
-
+    
             const data = await response.json();
-            if (response.ok) {
-                setStatusMap((prev) => ({ ...prev, [id]: newStatus }));
-                fetch("http://localhost:5000/api/complaints")
-                    .then((response) => response.json())
-                    .then((data) => {
-                        const updatedStatusMap = data.reduce((acc, item) => {
-                            acc[item._id] = item.status || "Pending";
-                            return acc;
-                        }, {});
-                        setStatusMap(updatedStatusMap);
-                        setFormData(data);
-                    })
-                    .catch((error) => console.error("Error refreshing data:", error));
-            } else {
-                console.error("Failed to update status:", data.message);
+            if (!response.ok) throw new Error("Failed to update status");
+    
+            setStatusMap((prev) => ({ ...prev, [id]: newStatus }));
+    
+            // Refresh complaints data
+            fetch("http://localhost:5000/api/complaints")
+                .then((res) => res.json())
+                .then((data) => {
+                    const updatedStatusMap = data.reduce((acc, item) => {
+                        acc[item._id] = item.status || "Pending";
+                        return acc;
+                    }, {});
+                    setStatusMap(updatedStatusMap);
+                    setFormData(data);
+                })
+                .catch((error) => console.error("Error refreshing data:", error));
+    
+            // Step 5: Prepare SMS message
+            const messageEn = newStatus === "Approved"
+                ? `Dear ${userName}, your claim (ID: ${id}) has been approved. Weather data matches the reported loss.`
+                : `Dear ${userName}, your claim (ID: ${id}) has been rejected. The weather conditions do not match the reported loss.`;
+    
+            // Step 6: Translate SMS if not English
+            let translatedMessage = messageEn;
+            if (userLanguage !== "en") {
+                const translationResponse = await fetch("https://revapi.reverieinc.com/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "REV-API-KEY": "<YOUR API KEY>",
+                        "REV-APP-ID": "<YOUR APP-ID>",
+                        "src_lang": "en",
+                        "tgt_lang": userLanguage,
+                        "domain": "generic",
+                        "REV-APPNAME": "localization",
+                        "REV-APPVERSION": "3.0"
+                    },
+                    body: JSON.stringify({
+                        data: [messageEn],
+                        nmtMask: true,
+                        enableNmt: true,
+                        enableLookup: true
+                    }),
+                });
+    
+                const translationData = await translationResponse.json();
+                if (translationData?.responseList?.length > 0) {
+                    translatedMessage = translationData.responseList[0].outString;
+                }
             }
+    
+            // Step 7: Send SMS
+            await fetch("http://localhost:5000/send-sms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    to: phoneNumber,
+                    message: translatedMessage,
+                }),
+            });
+    
+            console.log(`Complaint ${newStatus}, SMS sent to ${phoneNumber} in ${userLanguage}`);
         } catch (error) {
-            console.error("Error updating complaint status:", error);
+            console.error("Error updating complaint status or sending SMS:", error);
         }
     };
+    
+    
+    
+    
 
     const fetchCoordinates = async (pincode, item) => {
         try {
@@ -607,8 +692,8 @@ const Admin = ({ onAdminLogout }) => {
                                             updateComplaintStatus(selectedItem._id, "Rejected");
                                             closePopup();
                                         }}
-                                        disabled={statusMap[selectedItem._id] === "Approved" || statusMap[selectedItem._id] === "Rejected" || !weatherData}
-                                        className={`px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${statusMap[selectedItem._id] === "Approved" || statusMap[selectedItem._id] === "Rejected" || !weatherData
+                                        //disabled={statusMap[selectedItem._id] === "Approved" || statusMap[selectedItem._id] === "Rejected" || !weatherData}
+                                        className={`px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${!weatherData
                                             ? "opacity-50 cursor-not-allowed"
                                             : "hover:bg-gray-50"
                                             }`}
@@ -620,8 +705,8 @@ const Admin = ({ onAdminLogout }) => {
                                             updateComplaintStatus(selectedItem._id, "Approved");
                                             closePopup();
                                         }}
-                                        disabled={statusMap[selectedItem._id] === "Approved" || statusMap[selectedItem._id] === "Rejected" || !weatherData}
-                                        className={`px-4 py-2 bg-green-600 border border-transparent rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${statusMap[selectedItem._id] === "Approved" || statusMap[selectedItem._id] === "Rejected" || !weatherData
+                                        //disabled={statusMap[selectedItem._id] === "Approved" || statusMap[selectedItem._id] === "Rejected" || !weatherData}
+                                        className={`px-4 py-2 bg-green-600 border border-transparent rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${!weatherData
                                             ? "opacity-50 cursor-not-allowed"
                                             : "hover:bg-green-700"
                                             }`}

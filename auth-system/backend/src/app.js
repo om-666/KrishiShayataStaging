@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { MongoClient } = require('mongodb');
+const twilio = require("twilio");
+require("dotenv").config();
 
 const connectDB = require('./config/dbConfig');
 const authRoutes = require('./routes/authRoutes');
@@ -19,6 +21,24 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
+
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+app.post("/send-sms", async (req, res) => {
+    const { to, message } = req.body;
+
+    try {
+        const sms = await twilioClient.messages.create({
+            body: message,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: to,
+        });
+
+        res.status(200).json({ success: true, data: sms });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 // Connect to MongoDB
 connectDB()
@@ -117,7 +137,10 @@ app.get("/api/complain/status", async (req, res) => {
         // Return only the status and complaint ID
         res.status(200).json({ 
             status: complaint.status,
-            complaintId: complaint._id 
+            complaintId: complaint._id,
+            phone:complaint.phone,
+            name: complaint.name,
+            state: complaint.state
         });
     } catch (error) {
         console.error("Error fetching complaint status:", error);
