@@ -2,7 +2,6 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { MongoClient } = require('mongodb');
 const twilio = require("twilio");
@@ -48,11 +47,6 @@ connectDB()
         process.exit(1);
     });
 
-// Initialize Razorpay with your API keys
-const razorpay = new Razorpay({
-    key_id: "rzp_test_Y6001oiMAxB4vr",
-    key_secret: "MaPjnSuThRYUVsbYNEbZp1Yy",
-});
 
 // Auth Routes
 app.use('/api/auth', authRoutes);

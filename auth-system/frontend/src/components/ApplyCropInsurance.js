@@ -4,22 +4,7 @@ import axios from "axios";
 import Footer from "./Footer";
 import QuickAnimatedLoader from "./CustomLoader";
 
-// Function to load Razorpay script dynamically with delay
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => {
-      console.log("Razorpay script loaded successfully");
-      setTimeout(() => resolve(true), 500); // 500ms delay
-    };
-    script.onerror = (error) => {
-      console.error("Error loading Razorpay script:", error);
-      resolve(false);
-    };
-    document.body.appendChild(script);
-  });
-};
+
 
 const ApplyInsuranceForm = () => {
   const [formData, setFormData] = useState({
@@ -189,8 +174,6 @@ const ApplyInsuranceForm = () => {
     "Area Sown must be a valid number",
     "Account number cannot exceed 18 digits",
     "Aadhaar number cannot exceed 12 digits",
-    "Failed to load Razorpay SDK. Please try again.",
-    "Razorpay SDK is not available. Please try again.",
     "Premium details not available.",
     "Payment successful!",
     "Payment verification failed.",
@@ -493,83 +476,6 @@ const ApplyInsuranceForm = () => {
     setIsSubmitted(false);
   };
 
-  const handlePayment = async () => {
-    const isScriptLoaded = await loadRazorpayScript();
-
-    if (!isScriptLoaded) {
-      messageApi.error(getTranslatedText("Failed to load Razorpay SDK. Please try again."));
-      return;
-    }
-
-    if (!window.Razorpay) {
-      messageApi.error(getTranslatedText("Razorpay SDK is not available. Please try again."));
-      console.error("window.Razorpay is undefined");
-      return;
-    }
-
-    if (!premiumDetails) {
-      messageApi.error(getTranslatedText("Premium details not available."));
-      return;
-    }
-
-    try {
-      console.log("Creating order with amount:", premiumDetails.premiumPaidByFarmer);
-      const response = await axios.post("http://localhost:5000/api/create-order", {
-        amount: premiumDetails.premiumPaidByFarmer,
-      });
-
-      console.log("Order response:", response.data);
-      const { orderId, amount, currency, key } = response.data;
-
-      const options = {
-        key: key,
-        amount: amount,
-        currency: currency,
-        name: getTranslatedText("Crop Insurance"),
-        description: `${getTranslatedText("Premium payment for")} ${premiumDetails.crop}`,
-        order_id: orderId,
-        handler: async (response) => {
-          console.log("Payment response:", response);
-          try {
-            const verifyResponse = await axios.post("http://localhost:5000/api/verify-payment", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-
-            console.log("Verification response:", verifyResponse.data);
-            if (verifyResponse.data.status === "success") {
-              messageApi.success(getTranslatedText("Payment successful!"));
-              handleReset();
-            } else {
-              messageApi.error(getTranslatedText("Payment verification failed."));
-            }
-          } catch (error) {
-            console.error("Error verifying payment:", error);
-            messageApi.error(getTranslatedText("Payment verification failed."));
-          }
-        },
-        prefill: {
-          name: formData.name,
-          contact: formData.mobile,
-        },
-        theme: {
-          color: "#10B981",
-        },
-      };
-
-      console.log("Razorpay options:", options);
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.on("payment.failed", (response) => {
-        console.error("Payment failed:", response.error);
-        messageApi.error(`${getTranslatedText("Payment failed")}: ${response.error.description}`);
-      });
-      paymentObject.open();
-    } catch (error) {
-      console.error("Error initiating payment:", error);
-      messageApi.error(getTranslatedText("Failed to initiate payment. Please try again."));
-    }
-  };
 
   if (loadingTranslations) {
     <QuickAnimatedLoader />
