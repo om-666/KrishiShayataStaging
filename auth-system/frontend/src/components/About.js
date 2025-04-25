@@ -121,7 +121,7 @@ const AboutPage = () => {
                   {getTranslatedText("We are a group of passionate 3rd-year students at Siksha 'O' Anusandhan University, driven by our shared love for technology and our commitment to solving real-world problems.")}
                 </p>
               </div>
-              <div className="team-section">
+              {/* <div className="team-section">
                 <div className="team-grid">
                   {['Sudiksha', 'OTP', 'Sumit', 'Smriti', 'Chanchal'].map((name, index) => (
                     <div key={index} className="team-member">
@@ -133,7 +133,7 @@ const AboutPage = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

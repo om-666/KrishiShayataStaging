@@ -13,7 +13,8 @@ const User = require('./models/userModel');
 const FormData = require('./models/formDataModel');
 const ComplainData = require('./models/cropLossModel');
 const TextData = require('./models/textDataModel');
-const axios = require('axios');  
+const axios = require('axios'); 
+const Razorpay = require('razorpay'); 
 
 const app = express();
 // Middleware
@@ -46,6 +47,50 @@ connectDB()
         console.error("❌ MongoDB Connection Error:", err);
         process.exit(1);
     });
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || '<YOUR_RAZORPAY_KEY_ID>',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || '<YOUR_RAZORPAY_KEY_SECRET>',
+});
+
+app.post("/api/verify-payment", (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest("hex");
+  
+    if (expectedSignature === razorpay_signature) {
+      res.json({ status: "success" });
+    } else {
+      res.json({ status: "failure" });
+    }
+  });
+
+  app.post('/api/create-order', async (req, res) => {
+    try {
+      const { amount } = req.body;
+      const options = {
+        amount: amount * 100*0.001,
+        currency: "INR",
+        receipt: "receipt_order_" + Date.now(),
+      };
+  
+      const order = await razorpay.orders.create(options);
+  
+      res.status(200).json({
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        key: process.env.RAZORPAY_KEY_ID,
+      });
+    } catch (error) {
+      console.error("Error creating Razorpay order:", error);
+      res.status(500).json({ message: "Error creating Razorpay order", error: error.message });
+    }
+  });
 
 
 // Auth Routes

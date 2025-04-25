@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,7 +11,13 @@
 
   <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
     crossorigin="anonymous"></script>
-
+    <script type="text/javascript" src=http://localhost:3001/api/snippet/bundle/file></script> 
+                    <script type="text/javascript">anuvadak({
+    project: {
+        key: "a12d954c-fad8-40db-92cf-1c0f79a9956d"
+    },
+    customWidget: false,
+});</script>
   <script>
     // Function to process text nodes string by string
     function processTextStringByString(element, callback) {
@@ -37,26 +44,26 @@
     // Function to send text to backend
     async function saveToDatabase(originalText) {
       try {
-        console.log('Sending to backend:', { originalText });
-        const response = await fetch('http://localhost:500/api/save-text', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            originalText: originalText,
-            timestamp: new Date().toISOString()
-          })
-        });
+        // console.log('Sending to backend:', { originalText });
+        // const response = await fetch('http://localhost:500/api/save-text', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     originalText: originalText,
+        //     timestamp: new Date().toISOString()
+        //   })
+        // });
         
-        const data = await response.json();
+        // const data = await response.json();
         
-        if (response.ok) {
-          console.log('Success:', data.message, 'ID:', data.id);
-          // You can use the returned ID or message as needed
-        } else {
-          console.error('Failed to save text:', response.status, data.message);
-        }
+        // if (response.ok) {
+        //   console.log('Success:', data.message, 'ID:', data.id);
+        //   // You can use the returned ID or message as needed
+        // } else {
+        //   console.error('Failed to save text:', response.status, data.message);
+        // }
       } catch (error) {
         console.error('Error saving to database:', error);
       }
