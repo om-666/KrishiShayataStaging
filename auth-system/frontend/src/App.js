@@ -16,6 +16,7 @@ import Calculators from './components/calculator';
 import Admin from './components/Admin'; // Import Admin Page
 import AdminLogin from './components/AdminLogins';
 import Status from './components/Status';
+import VideoEmbed from './components/video';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!Cookies.get('userAadhar'));
@@ -62,6 +63,7 @@ function App() {
       <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <ChatBot />
       <Routes>
+        <Route path="/video" element={<PrivateRoute element={<VideoEmbed />} />} />
         <Route path="/signup" element={<UnauthenticatedRoute element={<Signup />} />} />
         <Route path="/login" element={<UnauthenticatedRoute element={<Login onLoginSuccess={handleLoginSuccess} />} />} />
         <Route path="/home" element={<PrivateRoute element={<Home />} />} />

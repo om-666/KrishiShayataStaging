@@ -73,7 +73,7 @@ app.post("/api/verify-payment", (req, res) => {
     try {
       const { amount } = req.body;
       const options = {
-        amount: amount * 100*0.001,
+        amount: amount * 100,
         currency: "INR",
         receipt: "receipt_order_" + Date.now(),
       };
