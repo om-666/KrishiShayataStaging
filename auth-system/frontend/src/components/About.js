@@ -103,7 +103,7 @@ const AboutPage = () => {
             <div className="section about-us">
               <div className="text-section">
                 <BlurText className="heading" text={getTranslatedText("About Us")} />
-                <BlurText className="paragraph" text={getTranslatedText("We are a group of passionate 3rd-year students at Siksha 'O' Anusandhan University, driven by our shared love for technology and our commitment to solving real-world problems.")} />
+                <BlurText className="paragraph" text={getTranslatedText("We are a group of passionate final year students at Siksha 'O' Anusandhan University, driven by our shared love for technology and our commitment to solving real-world problems.")} />
               </div>
             </div>
           </div>

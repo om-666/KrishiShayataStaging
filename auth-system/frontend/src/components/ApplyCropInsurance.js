@@ -204,32 +204,32 @@ const ApplyInsuranceForm = () => {
   };
   const handlePayment = async () => {
     const isScriptLoaded = await loadRazorpayScript();
-  
+
     if (!isScriptLoaded) {
       messageApi.error(getTranslatedText("Failed to load Razorpay SDK. Please try again."));
       return;
     }
-  
+
     if (!window.Razorpay) {
       messageApi.error(getTranslatedText("Razorpay SDK is not available. Please try again."));
       console.error("window.Razorpay is undefined");
       return;
     }
-  
+
     if (!premiumDetails) {
       messageApi.error(getTranslatedText("Premium details not available."));
       return;
     }
-  
+
     try {
       console.log("Creating order with amount:", premiumDetails.premiumPaidByFarmer);
       const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/create-order`, {
         amount: premiumDetails.premiumPaidByFarmer,
       });
-  
+
       console.log("Order response:", response.data);
       const { orderId, amount, currency, key } = response.data;
-  
+
       const options = {
         key: key,
         amount: amount,
@@ -245,10 +245,15 @@ const ApplyInsuranceForm = () => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-  
+
             console.log("Verification response:", verifyResponse.data);
             if (verifyResponse.data.status === "success") {
               messageApi.success(getTranslatedText("Payment successful!"));
+              const smsMessage = `Dear ${formData.name}, your payment of ₹${premiumDetails.premiumPaidByFarmer} has been successful. Thank you!`;
+              await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/send-sms`, {
+                to: "+91"+formData.mobile,
+                message: smsMessage,
+              });
               handleReset();
             } else {
               messageApi.error(getTranslatedText("Payment verification failed."));
@@ -266,7 +271,7 @@ const ApplyInsuranceForm = () => {
           color: "#10B981",
         },
       };
-  
+
       console.log("Razorpay options:", options);
       const paymentObject = new window.Razorpay(options);
       paymentObject.on("payment.failed", (response) => {
