@@ -2,7 +2,8 @@ services:
   - type: web
     name: my-backend
     env: node
-    rootDir: KrishiShayataStaging/auth-system/backend
+    rootDir: auth-system/backend  
+
     buildCommand: npm install
     startCommand: npm run dev
     plan: free
