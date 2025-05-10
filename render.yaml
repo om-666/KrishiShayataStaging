@@ -5,7 +5,7 @@ services:
     rootDir: auth-system/backend  
 
     buildCommand: npm install
-    startCommand: npm run dev
+    startCommand: npm start
     plan: free
     envVars:
       - key: NODE_ENV
