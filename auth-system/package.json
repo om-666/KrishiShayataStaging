@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "emailjs-com": "^3.2.0",
-    "js-cookie": "^3.0.5"
-  }
-}

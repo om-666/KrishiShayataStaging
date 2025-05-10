@@ -24,7 +24,7 @@ const Status = () => {
         }
 
         // Updated API endpoint to match the curl command
-        const response = await fetch(`http://localhost:5000/api/complain?aadhaar=${userAadhar}`, {
+        const response = await fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complain?aadhaar=${userAadhar}`, {
           headers: {
             'Content-Type': 'application/json'
           }
