@@ -42,7 +42,7 @@ function Login({ onLoginSuccess }) {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { aadhar, password });
+      const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/auth/login`, { aadhar, password });
 
       console.log("Full API Response:", response.data);
 

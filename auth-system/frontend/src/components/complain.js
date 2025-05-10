@@ -204,10 +204,11 @@ const Complain = () => {
 
       const translationPromises = textsToTranslate.map(async (text) => {
         try {
-          const response = await axios.post("http://localhost:5000/api/translate", {
+            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
+
             en: text,
             langCode: selectedLanguage,
-          });
+            });
           return { [text]: response.data.translation };
         } catch (error) {
           console.error(`Error fetching translation for ${text}:`, error.message);
@@ -353,7 +354,7 @@ const Complain = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post("http://localhost:5000/api/complain", formData);
+      const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complain`, formData);
       messageApi.success(response.data.message || getTranslatedText("Complaint submitted successfully!"));
       setShowSuccess(true);
 

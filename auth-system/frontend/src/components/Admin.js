@@ -41,21 +41,21 @@ const Admin = ({ onAdminLogout }) => {
     // Fetch complaints from API
     useEffect(() => {
         setIsLoading(true);
-        fetch("http://localhost:5000/api/complaints")
+        fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complaints`)
             .then((response) => response.json())
             .then((data) => {
-                const initialStatusMap = data.reduce((acc, item) => {
-                    acc[item._id] = item.status || "Pending";
-                    return acc;
-                }, {});
-                setStatusMap(initialStatusMap);
-                setFormData(data);
-                setFilteredData(data);
-                setIsLoading(false);
+            const initialStatusMap = data.reduce((acc, item) => {
+                acc[item._id] = item.status || "Pending";
+                return acc;
+            }, {});
+            setStatusMap(initialStatusMap);
+            setFormData(data);
+            setFilteredData(data);
+            setIsLoading(false);
             })
             .catch((error) => {
-                console.error("Error fetching data :", error);
-                setIsLoading(false);
+            console.error("Error fetching data :", error);
+            setIsLoading(false);
             });
     }, []);
 
@@ -188,7 +188,7 @@ const Admin = ({ onAdminLogout }) => {
     const updateComplaintStatus = async (id, newStatus) => {
         try {
             // Step 1: Fetch complaint details
-            const complaintResponse = await fetch(`http://localhost:5000/api/complain/status?id=${id}`, {
+            const complaintResponse = await fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complain/status?id=${id}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -209,7 +209,7 @@ const Admin = ({ onAdminLogout }) => {
             const userLanguage = languages.find(lang => lang.states.includes(userState))?.key || "en";
     
             // Step 4: Update complaint status
-            const response = await fetch(`http://localhost:5000/api/complaints/${id}/status`, {
+            const response = await fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complaints/${id}/status`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: newStatus }),
@@ -221,7 +221,7 @@ const Admin = ({ onAdminLogout }) => {
             setStatusMap((prev) => ({ ...prev, [id]: newStatus }));
     
             // Refresh complaints data
-            fetch("http://localhost:5000/api/complaints")
+            fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complaints`)
                 .then((res) => res.json())
                 .then((data) => {
                     const updatedStatusMap = data.reduce((acc, item) => {
@@ -268,7 +268,7 @@ const Admin = ({ onAdminLogout }) => {
             }
     
             // Step 7: Send SMS
-            await fetch("http://localhost:5000/send-sms", {
+            await fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/send-sms`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -305,7 +305,7 @@ const Admin = ({ onAdminLogout }) => {
     const handleStatusClick = async (item) => { 
         try {
             // Fetch the current status from the API
-            const response = await fetch(`http://localhost:5000/api/complain/status?id=${item._id}`, {
+            const response = await fetch(`${process.env.REACT_APP_AVK_ENDPOINT}/api/complain/status?id=${item._id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

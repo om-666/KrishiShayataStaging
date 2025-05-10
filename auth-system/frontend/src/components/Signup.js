@@ -46,7 +46,7 @@ function Signup() {
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+      const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/auth/signup`, {
         fullName,
         phone,
         aadhar,

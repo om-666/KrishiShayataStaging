@@ -27,10 +27,10 @@ const Footer = () => {
 
       const translationPromises = textsToTranslate.map(async (text) => {
         try {
-          const response = await axios.post("http://localhost:5000/api/translate", {
+            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: text === "କୃଷି ସହାୟକ" ? "Krishi Sahayak" : text, // Translate from English equivalent if Odia
             langCode: selectedLanguage,
-          });
+            });
           console.log(`Response for ${text}:`, response.data);
           return { [text]: response.data.translation };
         } catch (error) {

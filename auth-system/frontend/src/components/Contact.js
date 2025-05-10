@@ -29,10 +29,10 @@ const Contact = () => {
       try {
         setLoading(true);
         const translationPromises = textItems.map(async (text) => {
-          const response = await axios.post("http://localhost:5000/api/translate", {
+            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: text,
             langCode: selectedLanguage,
-          });
+            });
           return { [text]: response.data.translation };
         });
 

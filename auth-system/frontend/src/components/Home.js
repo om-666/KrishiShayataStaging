@@ -26,10 +26,10 @@ const FeatureCard = () => {
       try {
         setLoading(true);
         const translationPromises = cardTitles.map(async (title) => {
-          const response = await axios.post("http://localhost:5000/api/translate", {
+            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: title,
             langCode: selectedLanguage,
-          });
+            });
           return { [title]: response.data.translation };
         });
         const results = await Promise.all(translationPromises);

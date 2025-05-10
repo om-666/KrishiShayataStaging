@@ -48,10 +48,10 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
       const translationPromises = navTexts.map(async (text) => {
         try {
           console.log(`Requesting: ${text} in ${selectedLanguage}`);
-          const response = await axios.post("http://localhost:5000/api/translate", {
+            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: text,
             langCode: selectedLanguage,
-          });
+            });
           console.log(`Response for ${text}:`, response.data);
           return { [text]: response.data.translation };
         } catch (error) {

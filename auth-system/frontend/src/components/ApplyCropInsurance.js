@@ -223,7 +223,7 @@ const ApplyInsuranceForm = () => {
   
     try {
       console.log("Creating order with amount:", premiumDetails.premiumPaidByFarmer);
-      const response = await axios.post("http://localhost:5000/api/create-order", {
+      const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/create-order`, {
         amount: premiumDetails.premiumPaidByFarmer,
       });
   
@@ -240,7 +240,7 @@ const ApplyInsuranceForm = () => {
         handler: async (response) => {
           console.log("Payment response:", response);
           try {
-            const verifyResponse = await axios.post("http://localhost:5000/api/verify-payment", {
+            const verifyResponse = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -346,10 +346,10 @@ const ApplyInsuranceForm = () => {
 
       const translationPromises = textsToTranslate.map(async (text) => {
         try {
-          const response = await axios.post("http://localhost:5000/api/translate", {
+            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: text,
             langCode: selectedLanguage,
-          });
+            });
           console.log(`Response for ${text}:`, response.data);
           return { [text]: response.data.translation };
         } catch (error) {
@@ -528,7 +528,7 @@ const ApplyInsuranceForm = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/submit", formData);
+      const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/submit`, formData);
       if (response.status === 200) {
         setShowSuccess(true);
         messageApi.success(getTranslatedText("Form submitted successfully!"));
