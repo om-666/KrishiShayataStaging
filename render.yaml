@@ -1,14 +1,15 @@
 services:
   - type: web
-    name: my-backend
+    name: krishi-backend
     env: node
-    rootDir: backend
+    rootDir: auth-system/backend
     buildCommand: npm install
-    startCommand: npm run dev
-    plan: free
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 5000
       - key: MONGO_URI
         value: mongodb+srv://souravmishra7456:wZgCzCsJJQ22Bnc8@cluster0.5j0ia.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - key: TWILIO_ACCOUNT_SID
