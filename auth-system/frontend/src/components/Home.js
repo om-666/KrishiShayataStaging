@@ -5,6 +5,55 @@ import "./FeatureCard.css";
 import Footer from "./Footer";
 import QuickAnimatedLoader from "./CustomLoader";
 
+const speakerMap = {
+  hi: 'hi_female',
+  bn: 'bn_female',
+  kn: 'kn_female',
+  ml: 'ml_female',
+  ta: 'ta_female',
+  te: 'te_female',
+  gu: 'gu_female',
+  or: 'or_female',
+  as: 'as_female',
+  mr: 'mr_female',
+  pa: 'pa_female',
+  en: 'en_female',
+};
+
+ 
+const reverieTTS = async (text) => {
+  try {
+    const selectedLanguage = localStorage.getItem("selectedLanguage") || "hi";
+    const speaker = speakerMap[selectedLanguage] || 'hi_female'; // fallback
+
+    const response = await axios.post(
+      'https://revapi.reverieinc.com/',
+      {
+        text: [text],
+        speed: 1,
+      },
+      {
+        headers: {
+          'REV-API-KEY': 'b47c0477d09074081e419ccf63c4f7aac310ee2c',
+          'REV-APP-ID': 'dev.adipurushhariram8',
+          'REV-APPNAME': 'tts',
+          'speaker': speaker,  // ✅ Uses mapped speaker code
+          'Content-Type': 'application/json',
+        },
+        responseType: 'arraybuffer',
+      }
+    );
+
+    const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+    audio.play();
+  } catch (error) {
+    console.error('Error calling Reverie TTS API:', error);
+  }
+};
+
+
 
 const FeatureCard = () => {
   const navigate = useNavigate();
@@ -20,16 +69,19 @@ const FeatureCard = () => {
     "Video Tutorial",
     "Admin Login",
   ];
-
+ 
   useEffect(() => {
     const fetchTranslations = async () => {
       try {
         setLoading(true);
         const translationPromises = cardTitles.map(async (title) => {
-            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
-            en: title,
-            langCode: selectedLanguage,
-            });
+          const response = await axios.post(
+            `${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`,
+            {
+              en: title,
+              langCode: selectedLanguage,
+            }
+          );
           return { [title]: response.data.translation };
         });
         const results = await Promise.all(translationPromises);
@@ -55,9 +107,7 @@ const FeatureCard = () => {
   };
 
   if (loading) {
-    return (
-      <QuickAnimatedLoader />
-    );
+    return <QuickAnimatedLoader />;
   }
 
   return (
@@ -65,18 +115,17 @@ const FeatureCard = () => {
       <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardTitles.map((title) => (
           <Card
-          key={title}
-          title={getTranslatedText(title)}
-          imageSrc={`/assets/${getImageFileName(title)}.png`}
-          href={title === "Check Application Status" ? "/status" : null}
-          onClick={
-            title !== "Check Application Status" && title !== "Admin Login"
-              ? () => navigate(`/${getNavigationPath(title)}`)
-              : null
-          }
-          href2={title === "Admin Login" ? "/adminlogin" : null}
-        />
-        
+            key={title}
+            title={getTranslatedText(title)}
+            imageSrc={`/assets/${getImageFileName(title)}.png`}
+            href={title === "Check Application Status" ? "/status" : null}
+            onClick={
+              title !== "Check Application Status" && title !== "Admin Login"
+                ? () => navigate(`/${getNavigationPath(title)}`)
+                : null
+            }
+            href2={title === "Admin Login" ? "/adminlogin" : null}
+          />
         ))}
       </div>
 
@@ -84,7 +133,6 @@ const FeatureCard = () => {
       <Footer />
     </>
   );
-
 };
 
 const getImageFileName = (title) => {
@@ -134,10 +182,47 @@ const Card = ({ title, imageSrc, href, href2, onClick }) => {
       </div>
 
       <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white bg-opacity-70 flex items-center justify-center z-20 opacity-0 transform translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-3 w-3 text-gray-800"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
         </svg>
       </div>
+
+      {/* Small speaker button in the top-left corner */}
+    <button
+  className="absolute top-2 left-2 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-90 z-30"
+  onClick={(e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    reverieTTS(title); // Use Reverie API instead of SpeechSynthesis
+  }}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4 text-gray-800"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M11 5L6 9H3v6h3l5 4V5zm7.07 1.93a8 8 0 010 11.31M15 8.46a4 4 0 010 7.07"
+    />
+  </svg>
+</button>
+
 
     </a>
   );
