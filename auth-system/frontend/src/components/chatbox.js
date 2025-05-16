@@ -11,8 +11,9 @@ const ChatBot = () => {
     const chatRef = useRef(null);
 
     // like it: API credentials for Reverie services (replace with env vars in production)
-    const apiKey = process.env.REACT_APP_API_KEY
-    const appId = process.env.REACT_APP_APP_ID 
+    const apiKey = "da1c12acfee8a204cf6a135ec0157d6adaffd478"
+
+    const appId = "com.npmpackage"
 
     const sourceLanguages = [
         { key: "en", label: "English" },
@@ -29,8 +30,11 @@ const ChatBot = () => {
         { key: "te", label: "Telugu (తెలుగు)" },
     ];
 
-    const speakText = async (text, languageCode) => {
+    const speakText = async (text, languageCode, buttonElement) => {
         try {
+            // Disable the button
+            if (buttonElement) buttonElement.disabled = true;
+
             const speakerMap = {
                 en: "en_female",
                 hi: "hi_female",
@@ -64,12 +68,23 @@ const ChatBot = () => {
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
+
             audio.play();
-            audio.onended = () => URL.revokeObjectURL(audioUrl);
+
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                if (buttonElement) buttonElement.disabled = false;
+            };
+
+            audio.onerror = () => {
+                if (buttonElement) buttonElement.disabled = false;
+            };
         } catch (error) {
             console.error("TTS error:", error);
+            if (buttonElement) buttonElement.disabled = false;
         }
     };
+
 
     const enableSwalekh = (querySelector, sourceLanguage, inputToolKey, domain = "1") => {
         const creds = { lang: sourceLanguage, mode: inputToolKey, apiKey, appId, querySel: querySelector, domain };
@@ -170,7 +185,6 @@ const ChatBot = () => {
             const botResponse = { text: botResponseText, sender: "bot", time: new Date() };
             setMessages((prev) => [...prev, botResponse]);
             setIsTyping(false);
-            speakText(botResponseText, selectedLanguage.key);
         } catch (error) {
             console.error("Chatbot API Error:", error);
             setIsTyping(false);
@@ -280,7 +294,7 @@ const ChatBot = () => {
                                                 {msg.text}
                                                 {msg.sender === "bot" && (
                                                     <button
-                                                        onClick={() => speakText(msg.text, selectedLanguage.key)}
+                                                        onClick={(e) => speakText(msg.text, selectedLanguage.key, e.currentTarget)}
                                                         className="absolute -right-2 -top-2 bg-green-100 hover:bg-green-200 text-green-800 p-1 rounded-full"
                                                         title="Speak"
                                                     >

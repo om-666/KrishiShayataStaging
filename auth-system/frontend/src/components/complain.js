@@ -3,8 +3,11 @@ import { message, DatePicker } from "antd";
 import axios from "axios";
 import Footer from "./Footer";
 import QuickAnimatedLoader from "./CustomLoader";
+import { useNavigate } from "react-router-dom";
+
 
 const Complain = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     claimType: "",
@@ -204,11 +207,11 @@ const Complain = () => {
 
       const translationPromises = textsToTranslate.map(async (text) => {
         try {
-            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
+          const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
 
             en: text,
             langCode: selectedLanguage,
-            });
+          });
           return { [text]: response.data.translation };
         } catch (error) {
           console.error(`Error fetching translation for ${text}:`, error.message);
@@ -377,9 +380,11 @@ const Complain = () => {
         dateOfSowing: "",
       });
 
+      window.location.href = "/home";
       setErrors({});
       setTouchedFields({});
       setTimeout(() => setShowSuccess(false), 3000);
+      navigate("/home");
     } catch (error) {
       messageApi.error(error.response?.data?.error || getTranslatedText("Failed to submit complaint"));
     }
@@ -395,6 +400,21 @@ const Complain = () => {
   if (loadingTranslations) {
     <QuickAnimatedLoader />
   }
+
+  const dateOfSowingLabelTranslations = {
+    en: "Date of Sowing",
+    hi: "बुवाई की तारीख",
+    as: "বোৱাৰ তাৰিখ",
+    bn: "বপনের তারিখ",
+    gu: "વાવણીની તારીખ",
+    kn: "ಬಿತ್ತನೆ ದಿನಾಂಕ",
+    ml: "വിതയ്ക്കൽ തീയതി",
+    mr: "पेरणीची तारीख",
+    or: "ବୁଣିବା ତାରିଖ",
+    pa: "ਬਿਜਾਈ ਦੀ ਮਿਤੀ",
+    ta: "விதைப்பு தேதி",
+    te: "విత్తన తేదీ"
+  };
 
   return (
     <>
@@ -421,9 +441,19 @@ const Complain = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {fields.map((key) => (
                   <div key={key} className="relative group">
-                    <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
-                      {getTranslatedText(key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()))}
-                    </label>
+
+                    {(() => {
+                      const languageKey = localStorage.getItem('selectedLanguage') || 'en';
+                      return (
+                        <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
+                          {getTranslatedText(
+                            key === "dateOfSowing"
+                              ? dateOfSowingLabelTranslations[languageKey] || dateOfSowingLabelTranslations.en
+                              : key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+                          )}
+                        </label>
+                      );
+                    })()}
                     {["claimType", "farmerType", "state", "causeOfLoss", "district"].includes(key) ? (
                       <select
                         name={key}

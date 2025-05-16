@@ -251,7 +251,7 @@ const ApplyInsuranceForm = () => {
               messageApi.success(getTranslatedText("Payment successful!"));
               const smsMessage = `Dear ${formData.name}, your payment of ₹${premiumDetails.premiumPaidByFarmer} has been successful. Thank you!`;
               await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/send-sms`, {
-                to: "+91"+formData.mobile,
+                to: "+91" + formData.mobile,
                 message: smsMessage,
               });
               handleReset();
@@ -351,10 +351,10 @@ const ApplyInsuranceForm = () => {
 
       const translationPromises = textsToTranslate.map(async (text) => {
         try {
-            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
+          const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: text,
             langCode: selectedLanguage,
-            });
+          });
           console.log(`Response for ${text}:`, response.data);
           return { [text]: response.data.translation };
         } catch (error) {
@@ -576,7 +576,20 @@ const ApplyInsuranceForm = () => {
   if (loadingTranslations) {
     <QuickAnimatedLoader />
   }
-
+  const dateOfSowingLabelTranslations = {
+    en: "Date of Sowing",
+    hi: "बुवाई की तारीख",
+    as: "বোৱাৰ তাৰিখ",
+    bn: "বপনের তারিখ",
+    gu: "વાવણીની તારીખ",
+    kn: "ಬಿತ್ತನೆ ದಿನಾಂಕ",
+    ml: "വിതയ്ക്കൽ തീയതി",
+    mr: "पेरणीची तारीख",
+    or: "ବୁଣିବା ତାରିଖ",
+    pa: "ਬਿਜਾਈ ਦੀ ਮਿਤੀ",
+    ta: "விதைப்பு தேதி",
+    te: "విత్తన తేదీ"
+  };
   return (
     <>
       <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 overflow-hidden">
@@ -610,11 +623,20 @@ const ApplyInsuranceForm = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {fields.map((key) => (
                     <div key={key} className="relative group">
-                      <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
-                        {getTranslatedText(
-                          key === "areaSown" ? "Area Sown (in hectares)" : key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
-                        )}
-                      </label>
+                      {(() => {
+                        const languageKey = localStorage.getItem('selectedLanguage') || 'en';
+                        return (
+                          <label className="block text-base font-semibold text-gray-700 mb-2 transition-all duration-300 group-hover:text-emerald-600 group-hover:scale-105 origin-left">
+                            {getTranslatedText(
+                              key === "areaSown"
+                                ? "Area Sown (in hectares)"
+                                : key === "dateOfSowing"
+                                  ? dateOfSowingLabelTranslations[languageKey] || dateOfSowingLabelTranslations.en
+                                  : key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+                            )}
+                          </label>
+                        );
+                      })()}
                       {key === "state" ? (
                         <select
                           name={key}
