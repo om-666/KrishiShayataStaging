@@ -10,8 +10,9 @@ const ChatBot = () => {
     const [selectedLanguage, setSelectedLanguage] = useState({ key: "en", label: "English" });
     const chatRef = useRef(null);
 
-    const apiKey = "b47c0477d09074081e419ccf63c4f7aac310ee2c"; // Use process.env.REACT_APP_API_KEY in production
-    const appId = "dev.adipurushhariram8"; // Use process.env.REACT_APP_APP_ID in production
+    // like it: API credentials for Reverie services (replace with env vars in production)
+    const apiKey = process.env.REACT_APP_API_KEY
+    const appId = process.env.REACT_APP_APP_ID 
 
     const sourceLanguages = [
         { key: "en", label: "English" },
@@ -103,8 +104,8 @@ const ChatBot = () => {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "REV-API-KEY": apiKey,
-                        "REV-APP-ID": appId,
+                        "REV-API-KEY": "abc",
+                        "REV-APP-ID": "abc",
                         "src_lang": selectedLanguage.key,
                         "tgt_lang": "en",
                         "domain": "generic",
@@ -149,8 +150,8 @@ const ChatBot = () => {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "REV-API-KEY": apiKey,
-                            "REV-APP-ID": appId,
+                            "REV-API-KEY": "abc",
+                            "REV-APP-ID": "abc",
                             "src_lang": "en",
                             "tgt_lang": selectedLanguage.key,
                             "domain": "generic",
