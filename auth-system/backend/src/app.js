@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const { MongoClient } = require('mongodb');
 const twilio = require("twilio");
 require("dotenv").config();
-// const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/auth');
 const connectDB = require('./config/dbConfig');
 const authRoutes = require('./routes/authRoutes');
