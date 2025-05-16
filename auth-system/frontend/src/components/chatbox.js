@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, MessageCircle, Leaf, X, Loader2, Sprout, ChevronDown } from "lucide-react";
+import { Send, MessageCircle, Leaf, X, Loader2, Sprout, ChevronDown, Volume2 } from "lucide-react";
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -10,9 +10,8 @@ const ChatBot = () => {
     const [selectedLanguage, setSelectedLanguage] = useState({ key: "en", label: "English" });
     const chatRef = useRef(null);
 
-    let apiKey = process.env.REACT_APP_API_KEY;
-    let appId = process.env.REACT_APP_APP_ID;
-
+    const apiKey = "b47c0477d09074081e419ccf63c4f7aac310ee2c"; // Use process.env.REACT_APP_API_KEY in production
+    const appId = "dev.adipurushhariram8"; // Use process.env.REACT_APP_APP_ID in production
 
     const sourceLanguages = [
         { key: "en", label: "English" },
@@ -29,38 +28,59 @@ const ChatBot = () => {
         { key: "te", label: "Telugu (తెలుగు)" },
     ];
 
-    const enableSwalekh = (querySelector, sourceLanguage, inputToolKey, domain = '1') => {
-        let creds = {
-            lang: sourceLanguage,
-            mode: inputToolKey,
-            apiKey,
-            appId,
-            querySel: querySelector,
-            domain: domain,
-            // apiEndpoint:"https://revapi.reverieinc.com/"
-        };
-        if (window?.loadSwalekh) {
-            window.loadSwalekh(creds);
+    const speakText = async (text, languageCode) => {
+        try {
+            const speakerMap = {
+                en: "en_female",
+                hi: "hi_female",
+                as: "as_female",
+                bn: "bn_female",
+                gu: "gu_female",
+                kn: "kn_female",
+                ml: "ml_female",
+                mr: "mr_female",
+                or: "or_female",
+                pa: "pa_female",
+                ta: "ta_female",
+                te: "te_female",
+            };
+            const speaker = speakerMap[languageCode] || "en_female";
+
+            const response = await fetch("https://revapi.reverieinc.com/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "REV-API-KEY": apiKey,
+                    "REV-APP-ID": appId,
+                    "REV-APPNAME": "tts",
+                    "speaker": speaker,
+                },
+                body: JSON.stringify({ text }),
+            });
+
+            if (!response.ok) throw new Error("TTS API request failed");
+
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+            audio.onended = () => URL.revokeObjectURL(audioUrl);
+        } catch (error) {
+            console.error("TTS error:", error);
         }
+    };
+
+    const enableSwalekh = (querySelector, sourceLanguage, inputToolKey, domain = "1") => {
+        const creds = { lang: sourceLanguage, mode: inputToolKey, apiKey, appId, querySel: querySelector, domain };
+        if (window?.loadSwalekh) window.loadSwalekh(creds);
     };
 
     const disableSwalekh = (querySelector) => {
-        if (window && window.unloadSwalekh) {
-            window.unloadSwalekh({ querySel: querySelector });
-        }
+        if (window?.unloadSwalekh) window.unloadSwalekh({ querySel: querySelector });
     };
 
-    // useEffect(() => {
-    //     enableSwalekh('#input-text', selectedLanguage.key, "phonetic", '1');
-    //     return () => {
-    //         disableSwalekh('#input-text');
-    //     };
-    // }, [selectedLanguage]);
-
     useEffect(() => {
-        if (chatRef.current) {
-            chatRef.current.scrollTop = chatRef.current.scrollHeight;
-        }
+        if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }, [messages]);
 
     const handleSend = async () => {
@@ -75,13 +95,10 @@ const ChatBot = () => {
 
         if (selectedLanguage.key !== "en") {
             try {
-                console.log("Translating user input:", input);
                 const translationRequest = {
                     data: [input],
                     enableNmt: true,
                 };
-                console.log("Translation API Request:", translationRequest);
-
                 const translationResponse = await fetch("https://revapi.reverieinc.com/", {
                     method: "POST",
                     headers: {
@@ -92,14 +109,11 @@ const ChatBot = () => {
                         "tgt_lang": "en",
                         "domain": "generic",
                         "REV-APPNAME": "localization",
-                        "REV-APPVERSION": "3.0"
+                        "REV-APPVERSION": "3.0",
                     },
-                    body: JSON.stringify(translationRequest)
+                    body: JSON.stringify(translationRequest),
                 });
-
                 const translationData = await translationResponse.json();
-                console.log("Translation API Response:", translationData);
-
                 translatedInput = translationData.responseList?.[0]?.outString || input;
             } catch (error) {
                 console.error("Translation error:", error);
@@ -113,9 +127,7 @@ const ChatBot = () => {
         }
 
         try {
-            console.log("Sending message to chatbot:", translatedInput);
             const chatbotRequest = { message: translatedInput };
-            console.log("Chatbot API Request:", chatbotRequest);
             const response = await fetch("https://krihsimitra.onrender.com/chatbot", {
                 method: "POST",
                 mode: "cors",
@@ -125,20 +137,14 @@ const ChatBot = () => {
             });
 
             const data = await response.json();
-            console.log("Chatbot API Response:", data);
-
             let botResponseText = data.response || "Sorry, I couldn't understand that.";
 
             if (selectedLanguage.key !== "en") {
                 try {
-                    console.log("Translating bot response:", botResponseText);
-
                     const reverseTranslationRequest = {
                         data: [botResponseText],
-                        enableNmt: true
+                        enableNmt: true,
                     };
-                    console.log("Reverse Translation API Request:", reverseTranslationRequest);
-
                     const reverseTranslationResponse = await fetch("https://revapi.reverieinc.com/", {
                         method: "POST",
                         headers: {
@@ -149,26 +155,21 @@ const ChatBot = () => {
                             "tgt_lang": selectedLanguage.key,
                             "domain": "generic",
                             "REV-APPNAME": "localization",
-                            "REV-APPVERSION": "3.0"
+                            "REV-APPVERSION": "3.0",
                         },
-                        body: JSON.stringify(reverseTranslationRequest)
+                        body: JSON.stringify(reverseTranslationRequest),
                     });
-
                     const reverseTranslationData = await reverseTranslationResponse.json();
-                    console.log("Reverse Translation API Response:", reverseTranslationData);
-
                     botResponseText = reverseTranslationData.responseList?.[0]?.outString || botResponseText;
                 } catch (error) {
                     console.error("Reverse translation error:", error);
                 }
             }
 
-            setIsTyping(false);
             const botResponse = { text: botResponseText, sender: "bot", time: new Date() };
-            console.log("Final bot response sent to UI:", botResponse);
-
             setMessages((prev) => [...prev, botResponse]);
-
+            setIsTyping(false);
+            speakText(botResponseText, selectedLanguage.key);
         } catch (error) {
             console.error("Chatbot API Error:", error);
             setIsTyping(false);
@@ -179,19 +180,14 @@ const ChatBot = () => {
         }
     };
 
-
-
     const handleLanguageSelect = (language) => {
         setSelectedLanguage(language);
         setIsLanguageDropdownOpen(false);
+        enableSwalekh("#input-text", language.key, "phonetic");
     };
 
     const formatTime = (date) => {
-        return new Date(date).toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-        });
+        return new Date(date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     };
 
     return (
@@ -206,7 +202,6 @@ const ChatBot = () => {
             {isOpen && (
                 <div className="w-80 md:w-96 h-[500px] bg-white shadow-2xl rounded-2xl fixed bottom-20 right-5 
                               flex flex-col animate-in slide-in-from-bottom-2 overflow-hidden">
-                    {/* Header */}
                     <div className="bg-[#364641] text-white p-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
@@ -217,7 +212,6 @@ const ChatBot = () => {
                                 </div>
                             </div>
                             <div className="flex items-center">
-                                {/* Language Dropdown */}
                                 <div className="relative mr-2">
                                     <button
                                         onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
@@ -226,15 +220,13 @@ const ChatBot = () => {
                                         <span>{selectedLanguage.label.split(" ")[0]}</span>
                                         <ChevronDown size={14} />
                                     </button>
-
                                     {isLanguageDropdownOpen && (
                                         <div className="absolute right-0 mt-1 bg-white text-gray-800 shadow-lg rounded-md py-1 w-48 max-h-64 overflow-y-auto z-10">
                                             {sourceLanguages.map((language) => (
                                                 <button
                                                     key={language.key}
                                                     onClick={() => handleLanguageSelect(language)}
-                                                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedLanguage.key === language.key ? "bg-green-50 text-green-800 font-medium" : ""
-                                                        }`}
+                                                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedLanguage.key === language.key ? "bg-green-50 text-green-800 font-medium" : ""}`}
                                                 >
                                                     {language.label}
                                                 </button>
@@ -242,9 +234,11 @@ const ChatBot = () => {
                                         </div>
                                     )}
                                 </div>
-
                                 <button
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={() => {
+                                        setIsOpen(false);
+                                        disableSwalekh("#input-text");
+                                    }}
                                     className="p-2 hover:bg-green-600 rounded-full transition-colors"
                                 >
                                     <X size={20} />
@@ -252,8 +246,6 @@ const ChatBot = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Messages Area */}
                     <div ref={chatRef} className="flex-1 p-4 overflow-y-auto bg-gray-50">
                         {messages.length === 0 ? (
                             <div className="text-center h-full flex flex-col items-center justify-center p-4">
@@ -280,12 +272,20 @@ const ChatBot = () => {
                                     >
                                         <div className="flex flex-col space-y-1 max-w-[80%]">
                                             <div
-                                                className={`p-3 rounded-2xl ${msg.sender === "user"
+                                                className={`p-3 rounded-2xl relative ${msg.sender === "user"
                                                     ? "bg-[#364641] text-white rounded-tr-none"
-                                                    : "bg-white shadow-sm text-gray-800 rounded-tl-none"
-                                                    }`}
+                                                    : "bg-white shadow-sm text-gray-800 rounded-tl-none"}`}
                                             >
                                                 {msg.text}
+                                                {msg.sender === "bot" && (
+                                                    <button
+                                                        onClick={() => speakText(msg.text, selectedLanguage.key)}
+                                                        className="absolute -right-2 -top-2 bg-green-100 hover:bg-green-200 text-green-800 p-1 rounded-full"
+                                                        title="Speak"
+                                                    >
+                                                        <Volume2 size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                             <span className="text-xs text-gray-500 px-2">
                                                 {formatTime(msg.time)}
@@ -306,8 +306,6 @@ const ChatBot = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Input Area */}
                     <div className="p-4 bg-white border-t">
                         <div className="flex items-center space-x-2">
                             <input
