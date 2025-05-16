@@ -6,7 +6,8 @@ const crypto = require('crypto');
 const { MongoClient } = require('mongodb');
 const twilio = require("twilio");
 require("dotenv").config();
-
+const bcrypt = require('bcryptjs');
+const { generateToken } = require('../utils/auth');
 const connectDB = require('./config/dbConfig');
 const authRoutes = require('./routes/authRoutes');
 const User = require('./models/userModel');
@@ -51,6 +52,63 @@ connectDB()
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || '<YOUR_RAZORPAY_KEY_ID>',
     key_secret: process.env.RAZORPAY_KEY_SECRET || '<YOUR_RAZORPAY_KEY_SECRET>',
+});
+
+
+// Signup Endpoint
+app.post('/api/auth/signup', async (req, res) => {
+  const { fullName, phone, aadhar, address, password } = req.body;
+
+  // Validate input
+  if (!fullName || !phone || !aadhar || !address || !password) {
+    return res.status(400).json({ 
+      success: false,
+      message: "All fields are required" 
+    });
+  }
+
+  try {
+    // Check for existing user by phone OR aadhar
+    const existingUser = await User.findOne({ 
+      $or: [{ phone }, { aadhar }] 
+    });
+
+    if (existingUser) {
+      let conflictField = existingUser.phone === phone ? "phone" : "Aadhar";
+      return res.status(409).json({
+        success: false,
+        message: `User with this ${conflictField} already exists!`,
+        conflictField
+      });
+    }
+
+    // Hash password & save user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      fullName,
+      phone,
+      aadhar,
+      address,
+      password: hashedPassword
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Signup successful!",
+      user: {
+        id: newUser._id,
+        fullName: newUser.fullName,
+        phone: newUser.phone
+      }
+    });
+
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error during signup"
+    });
+  }
 });
 
 app.post("/api/verify-payment", (req, res) => {
