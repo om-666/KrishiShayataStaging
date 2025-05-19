@@ -11,10 +11,10 @@ const ChatBot = () => {
     const chatRef = useRef(null);
 
     // like it: API credentials for Reverie services (replace with env vars in production)
-    const apiKey = "da1c12acfee8a204cf6a135ec0157d6adaffd478"
+    const apiKey = process.env.REACT_APP_API_KEY;
 
-    const appId = "com.npmpackage"
-
+    const appId = process.env.REACT_APP_APP_ID;
+    const SwalekhKey =process.env.REACT_APP_SWALEKH_KEY; 
     const sourceLanguages = [
         { key: "en", label: "English" },
         { key: "hi", label: "Hindi (हिन्दी)" },
@@ -89,7 +89,7 @@ const ChatBot = () => {
     const enableSwalekh = async (querySelector, lang = "hi") => {
         if (window?.initSwalekh) {
             await window.initSwalekh({
-                validationKey: "<YOUR-SWALEKH-KEY>", // your Swalekh API key
+                validationKey: SwalekhKey , // your Swalekh API key
                 creds: {
                     querySel: querySelector,
                     lang,
