@@ -13,14 +13,75 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
   const languageDropdownRef = useRef(null);
   const isAdminPath = window.location.pathname === '/admin';
 
+  // Hardcoded translations for login, logout, and signup
+  const hardcodedTranslations = {
+    "en": {
+      "Login": "Login",
+      "Logout": "Logout",
+      "Signup": "Signup"
+    },
+    "hi": {
+      "Login": "लॉग इन",
+      "Logout": "लॉग आउट",
+      "Signup": "साइन अप"
+    },
+    "as": {
+      "Login": "লগইন",
+      "Logout": "লগআউট",
+      "Signup": "চাইন আপ"
+    },
+    "bn": {
+      "Login": "লগইন",
+      "Logout": "লগআউট",
+      "Signup": "সাইন আপ"
+    },
+    "gu": {
+      "Login": "લૉગિન",
+      "Logout": "લૉગઆઉટ",
+      "Signup": "સાઇન અપ"
+    },
+    "kn": {
+      "Login": "ಲಾಗಿನ್",
+      "Logout": "ಲಾಗ್ಔಟ್",
+      "Signup": "ಸೈನ್ ಅಪ್"
+    },
+    "ml": {
+      "Login": "ലോഗിൻ",
+      "Logout": "ലോഗ്ഔട്ട്",
+      "Signup": "സൈൻ അപ്പ്"
+    },
+    "mr": {
+      "Login": "लॉगिन",
+      "Logout": "लॉगआउट",
+      "Signup": "साइन अप"
+    },
+    "or": {
+      "Login": "ଲଗଇନ୍",
+      "Logout": "ଲଗଆଉଟ୍",
+      "Signup": "ସାଇନ୍ ଅପ୍"
+    },
+    "pa": {
+      "Login": "ਲੌਗਇਨ",
+      "Logout": "ਲੌਗਆਉਟ",
+      "Signup": "ਸਾਇਨ ਅਪ"
+    },
+    "ta": {
+      "Login": "உள்நுழைக",
+      "Logout": "வெளியேறு",
+      "Signup": "பதிவு"
+    },
+    "te": {
+      "Login": "లాగిన్",
+      "Logout": "లాగ్అవుట్",
+      "Signup": "సైన్ అప్"
+    }
+  };
+
   const navTexts = [
     "Home",
     "About",
     "Contact",
     "Dashboard",
-    "Signup",
-    "Login",
-    "Logout",
     "Language",
     "କୃଷି ସହାୟକ"
   ];
@@ -48,10 +109,10 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
       const translationPromises = navTexts.map(async (text) => {
         try {
           console.log(`Requesting: ${text} in ${selectedLanguage}`);
-            const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
+          const response = await axios.post(`${process.env.REACT_APP_AVK_ENDPOINT}/api/translate`, {
             en: text,
             langCode: selectedLanguage,
-            });
+          });
           console.log(`Response for ${text}:`, response.data);
           return { [text]: response.data.translation };
         } catch (error) {
@@ -103,6 +164,11 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
   }, [isLanguageDropdownOpen]);
 
   const getTranslatedText = (englishText) => {
+    // Use hardcoded translations for login, logout, and signup
+    if (englishText === "Login" || englishText === "Logout" || englishText === "Signup") {
+      return hardcodedTranslations[selectedLanguage]?.[englishText] || englishText;
+    }
+    
     console.log("Current translations state:", translations);
     const translated = translations[englishText] || englishText;
     console.log(`Translating ${englishText} to: ${translated}`);
@@ -181,38 +247,43 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
         <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:block md:w-auto`} id="navbar-dropdown">
           {!isAdminPath && (
             <ul className="flex flex-col md:flex-row font-medium p-4 md:p-0 mt-4 md:mt-0 space-y-3 md:space-y-0 md:space-x-4">
-              <li><Link to="/home" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Home")}</Link></li>
-              <li><Link to="/about" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("About")}</Link></li>
-              <li><Link to="/contact" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Contact")}</Link></li>
+              {/* Show these links only when authenticated */}
               {isAuthenticated && (
                 <>
+                  <li><Link to="/home" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Home")}</Link></li>
+                  <li><Link to="/about" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("About")}</Link></li>
+                  <li><Link to="/contact" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Contact")}</Link></li>
                   <li><Link to="/dashboard" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Dashboard")}</Link></li>
-                  <li className="relative hidden md:block" ref={languageDropdownRef}>
-                    <button onClick={toggleLanguageDropdown} className="text-white py-2 px-3 rounded hover:bg-gray-700 flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                      </svg>
-                      {getTranslatedText("Language")}
-                    </button>
-                    {isLanguageDropdownOpen && (
-                      <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-50 w-64">
-                        <div className="max-h-48 overflow-y-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)' }}>
-                          {languages.map((lang) => (
-                            <button key={lang.key} onClick={() => handleLanguageSelect(lang.key)} className="px-4 py-2 text-left hover:bg-gray-200 cursor-pointer">
-                              {lang.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </li>
                 </>
               )}
+              
+              {/* Language dropdown - always visible */}
+              <li className="relative hidden md:block" ref={languageDropdownRef}>
+                <button onClick={toggleLanguageDropdown} className="text-white py-2 px-3 rounded hover:bg-gray-700 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                  </svg>
+                  {getTranslatedText("Language")}
+                </button>
+                {isLanguageDropdownOpen && (
+                  <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-50 w-64">
+                    <div className="max-h-48 overflow-y-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)' }}>
+                      {languages.map((lang) => (
+                        <button key={lang.key} onClick={() => handleLanguageSelect(lang.key)} className="px-4 py-2 text-left hover:bg-gray-200 cursor-pointer">
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </li>
+
+              {/* Conditional auth links */}
               {!isAuthenticated && (
                 <li><Link to="/signup" className="block py-2 px-3 text-white rounded hover:bg-gray-700">{getTranslatedText("Signup")}</Link></li>
               )}
+              
               <li>
-
                 <button
                   onClick={handleAuthAction}
                   className="text-white py-2 px-4 rounded-md"
@@ -220,7 +291,6 @@ function Navbar({ isAuthenticated, onLogout, onLanguageChange }) {
                 >
                   {isAuthenticated ? getTranslatedText("Logout") : getTranslatedText("Login")}
                 </button>
-
               </li>
             </ul>
           )}
