@@ -86,14 +86,35 @@ const ChatBot = () => {
     };
 
 
-    const enableSwalekh = (querySelector, sourceLanguage, inputToolKey, domain = "1") => {
-        const creds = { lang: sourceLanguage, mode: inputToolKey, apiKey, appId, querySel: querySelector, domain };
-        if (window?.loadSwalekh) window.loadSwalekh(creds);
+    const enableSwalekh = async (querySelector, lang = "hi") => {
+        if (window?.initSwalekh) {
+            await window.initSwalekh({
+                validationKey: "<YOUR-SWALEKH-KEY>", // your Swalekh API key
+                creds: {
+                    querySel: querySelector,
+                    lang,
+                    mode: "phonetic", // always use phonetic
+                },
+            });
+        }
     };
 
+
     const disableSwalekh = (querySelector) => {
-        if (window?.unloadSwalekh) window.unloadSwalekh({ querySel: querySelector });
+        if (window?.unloadSwalekh) {
+            window.unloadSwalekh({ querySel: querySelector });
+        }
     };
+
+    useEffect(() => {
+        enableSwalekh("#input-text", selectedLanguage.key);
+
+        return () => {
+            disableSwalekh("#input-text");
+        };
+    }, []);
+
+
 
     useEffect(() => {
         if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
@@ -195,10 +216,11 @@ const ChatBot = () => {
         }
     };
 
-    const handleLanguageSelect = (language) => {
+    const handleLanguageSelect = async (language) => {
         setSelectedLanguage(language);
         setIsLanguageDropdownOpen(false);
-        enableSwalekh("#input-text", language.key, "phonetic");
+        await disableSwalekh("#input-text");
+        await enableSwalekh("#input-text", language.key);
     };
 
     const formatTime = (date) => {
