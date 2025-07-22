@@ -1,4 +1,4 @@
-# Krishi Sahayata – Simplifying Insurance for farmers with seamless local language support	
+# Krishi Sahayata – Simplifying Insurance for Farmers with Seamless Local Language Support
 
 [![Krishi Sahayata Video](https://img.youtube.com/vi/UKb_AEvN8ZY/0.jpg)](https://youtu.be/UKb_AEvN8ZY)
 
@@ -12,7 +12,7 @@
 
 ### Prerequisites
 
-Make sure you have the following installed:
+Ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
@@ -21,10 +21,10 @@ Make sure you have the following installed:
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/krishi-sahayata-react.git
-cd krishi-sahayata-react
+git clone https://github.com/om-666/KrishiShayataStaging.git
+cd KrishiShayataStaging
 npm install
-````
+```
 
 ### Running the App
 
@@ -34,7 +34,19 @@ Start the development server:
 npm start
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) in your browser.
+Then visit [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Environment Variables
+
+Create a `.env` file in the project root and configure the following variables as needed:
+
+```env
+MONGODB_URI=your_mongodb_atlas_connection_string
+REACT_APP_API_URL=your_backend_api_url
+REACT_APP_TWILIO_SID=your_twilio_sid
+REACT_APP_TWILIO_AUTH_TOKEN=your_twilio_auth_token
+REACT_APP_EMAILJS_USERID=your_emailjs_userid
+```
 
 ---
 
@@ -46,7 +58,7 @@ KSA addresses the challenges faced by farmers in claiming crop insurance by offe
 
 ## 🧠 Problem Statement
 
-> 50% of India's population is engaged in farming. Yet, complex insurance processes, lack of awareness, and regional language gaps cause low adoption. This contributes to rising farmer distress and debt-driven suicides.
+> 50% of India's population is engaged in farming. Yet, complex insurance processes, lack of awareness, and regional language gaps cause low adoption. This contributes to rising farmer distress and delays in compensation.
 
 ---
 
@@ -104,12 +116,38 @@ The platform includes a multilingual chatbot – **Krishi Mitra** – that:
 
 ---
 
-## 🙌 Contribution
+## 📸 Screenshots
 
-We welcome contributions! Feel free to:
+<!-- Add screenshots of your app UI here -->
+<!-- Example:
+![Dashboard](screenshots/dashboard.png)
+-->
 
-* Fork the repo
-* Create a new branch
-* Submit a pull request
+---
+
+## 🙌 Contribution Guide
+
+We welcome contributions! To get started:
+
+1. **Fork** the repository
+2. **Create a new branch**: `git checkout -b feature-name`
+3. **Make your changes**
+4. **Commit** your changes: `git commit -m 'Add some feature'`
+5. **Push** to the branch: `git push origin feature-name`
+6. **Submit a Pull Request**
+
+Please ensure your code follows the project’s coding conventions and include relevant tests.
+
+---
+
+## 📧 Contact & Support
+
+For questions, feedback, or support, open an [issue](https://github.com/om-666/KrishiShayataStaging/issues) or reach out via email: [your-email@example.com]
+
+---
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ---
