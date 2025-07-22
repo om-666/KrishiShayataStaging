@@ -1,4 +1,4 @@
-# Krishi Sahayata (KSA)  
+# Krishi Sahayata – Simplifying Insurance for farmers with seamless local language support	
 
 [![Krishi Sahayata Video](https://img.youtube.com/vi/UKb_AEvN8ZY/0.jpg)](https://youtu.be/UKb_AEvN8ZY)
 
