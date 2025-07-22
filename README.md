@@ -142,7 +142,7 @@ Please ensure your code follows the project’s coding conventions and include r
 
 ## 📧 Contact & Support
 
-For questions, feedback, or support, open an [issue](https://github.com/om-666/KrishiShayataStaging/issues) or reach out via email: [your-email@example.com]
+For questions, feedback, or support, open an [issue](https://github.com/om-666/KrishiShayataStaging/issues) or reach out via email: [omtanmaya2004@gmail.com]
 
 ---
 
